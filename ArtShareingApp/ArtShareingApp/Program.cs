@@ -1,4 +1,4 @@
-using ArtShareingApp.Data;
+using ArtShareing.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
