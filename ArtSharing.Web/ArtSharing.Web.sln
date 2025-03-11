@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArtSharing.Web", "ArtSharing.Web\ArtSharing.Web.csproj", "{6ABD9E66-0511-4CCC-9FA8-76E18363C54E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtSharing.Web", "ArtSharing.Web\ArtSharing.Web.csproj", "{6ABD9E66-0511-4CCC-9FA8-76E18363C54E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtSharing.Data.Models", "ArtSharing.Models\ArtSharing.Data.Models.csproj", "{18F0A02A-83F4-4341-BE67-21483BB35BD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6ABD9E66-0511-4CCC-9FA8-76E18363C54E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6ABD9E66-0511-4CCC-9FA8-76E18363C54E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6ABD9E66-0511-4CCC-9FA8-76E18363C54E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18F0A02A-83F4-4341-BE67-21483BB35BD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18F0A02A-83F4-4341-BE67-21483BB35BD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18F0A02A-83F4-4341-BE67-21483BB35BD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18F0A02A-83F4-4341-BE67-21483BB35BD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
