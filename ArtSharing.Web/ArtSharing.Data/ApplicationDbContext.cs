@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace ArtSharin.Data.Models.Data
+namespace ArtSharing.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User>
     {
@@ -20,25 +20,33 @@ namespace ArtSharin.Data.Models.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); 
+            base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Like>()
-                .HasOne(l => l.User)
-                .WithMany(u => u.Likes)
-                .HasForeignKey(l => l.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-      
+             .HasOne(l => l.User)
+             .WithMany(u => u.Likes)
+             .HasForeignKey(l => l.UserId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+
             modelBuilder.Entity<Comment>()
-                .HasOne(c => c.User)
-                .WithMany(u => u.Comments)
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+             .HasOne(c => c.User)
+             .WithMany(u => u.Comments)
+             .HasForeignKey(c => c.UserId)
+             .OnDelete(DeleteBehavior.Restrict);
+
 
             modelBuilder.Entity<Post>()
-                .HasOne(p => p.User)
-                .WithMany(u => u.Posts)
-                .HasForeignKey(p => p.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+             .HasOne(p => p.User)
+             .WithMany(u => u.Posts)
+             .HasForeignKey(p => p.UserId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Report>()
+            .HasOne(r => r.ReportedBy)
+            .WithMany(u => u.Reports)
+            .HasForeignKey(r => r.ReportedById)
+            .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

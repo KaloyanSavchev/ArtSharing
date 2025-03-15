@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ArtSharing.Data.Models.Constants;
 
 namespace ArtSharing.Data.Models.Models
 {
@@ -13,14 +14,14 @@ namespace ArtSharing.Data.Models.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
+        [Required, MaxLength(EntityConstants.CommentConstants.ContentMaxLength)]
         public string Content { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("User")]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public User User { get; set; }
 
         [ForeignKey("Post")]

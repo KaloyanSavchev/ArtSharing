@@ -14,7 +14,7 @@ namespace ArtSharing.Data.Models.Models
         public int Id { get; set; }
 
         [ForeignKey("User")]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public User User { get; set; }
 
         [ForeignKey("Post")]

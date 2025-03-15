@@ -16,8 +16,8 @@ namespace ArtSharing.Data.Models.Models
         [Required]
         public string Reason { get; set; }
 
-        [ForeignKey("User")]
-        public int ReportedById { get; set; }
+        [ForeignKey("ReportedBy")]
+        public string ReportedById { get; set; }
         public User ReportedBy { get; set; }
 
         public int? PostId { get; set; }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using ArtSharing.Data.Models.Constants;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,8 +11,11 @@ namespace ArtSharing.Data.Models.Models
 {
     public class User : IdentityUser    
     {
-        public string? ProfilePicture { get; set; } 
-   
+        public string? ProfilePicture { get; set; }
+
+        [MaxLength(EntityConstants.UserConstants.ProfileDescriptionMaxLength)]
+        public string? ProfileDescription { get; set; }
+
         public DateTime DateRegistered { get; set; } = DateTime.UtcNow;
 
         public ICollection<Post> Posts { get; set; } = new List<Post>();
