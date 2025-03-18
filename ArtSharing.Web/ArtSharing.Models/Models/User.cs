@@ -18,6 +18,11 @@ namespace ArtSharing.Data.Models.Models
 
         public DateTime DateRegistered { get; set; } = DateTime.UtcNow;
 
+
+        public List<SavedPost> SavedPosts { get; set; } = new List<SavedPost>();
+        public ICollection<UserFollow> Followers { get; set; } = new List<UserFollow>(); // Кой следи този потребител
+        public ICollection<UserFollow> Following { get; set; } = new List<UserFollow>(); // Кого следи този потребител
+        
         public ICollection<Post> Posts { get; set; } = new List<Post>();
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Message> Messages { get; set; } = new List<Message>();

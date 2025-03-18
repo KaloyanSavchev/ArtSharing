@@ -47,6 +47,38 @@ namespace ArtSharing.Data
             .WithMany(u => u.Reports)
             .HasForeignKey(r => r.ReportedById)
             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Comment>()
+            .HasOne(c => c.ParentComment)
+            .WithMany(c => c.Replies)
+            .HasForeignKey(c => c.ParentCommentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<SavedPost>()
+            .HasOne(sp => sp.User)
+            .WithMany(u => u.SavedPosts)
+            .HasForeignKey(sp => sp.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SavedPost>()
+             .HasOne(sp => sp.Post)
+             .WithMany(p => p.SavedByUsers)
+             .HasForeignKey(sp => sp.PostId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserFollow>()
+            .HasOne(f => f.Follower)
+            .WithMany(u => u.Following)
+            .HasForeignKey(f => f.FollowerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserFollow>()
+            .HasOne(f => f.Following)
+            .WithMany(u => u.Followers)
+            .HasForeignKey(f => f.FollowingId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }
