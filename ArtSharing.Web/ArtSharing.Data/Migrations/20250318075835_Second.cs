@@ -50,7 +50,7 @@ namespace ArtSharing.Web.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FollowerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FollowingId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
+                },  
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserFollow", x => x.Id);
