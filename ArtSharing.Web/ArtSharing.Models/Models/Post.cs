@@ -32,11 +32,14 @@ namespace ArtSharing.Data.Models.Models
         public string UserId { get; set; }
         public User User { get; set; }
 
+        [ForeignKey("Category")]
+        public int CategoryId { get; set; }  
+        public Category Category { get; set; }
+
         public List<SavedPost> SavedByUsers { get; set; } = new List<SavedPost>();
 
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Like> Likes { get; set; } = new List<Like>();
         public ICollection<Report> Reports { get; set; } = new List<Report>();
-        public ICollection<Category> Categories { get; set; } = new List<Category>();
     }
 }

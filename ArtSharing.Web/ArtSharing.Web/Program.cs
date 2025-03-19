@@ -1,4 +1,4 @@
-using ArtSharing.Data;
+﻿using ArtSharing.Data;
 using ArtSharing.Data.Models.Models;
 using ArtSharing.Web.Data;
 using Microsoft.AspNetCore.Identity;
