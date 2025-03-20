@@ -16,7 +16,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 // 2. Добавяме Identity правилно
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false; // Ако не искаш да изисква потвърждение на email
+    options.SignIn.RequireConfirmedAccount = false; // Ако не искаш потвърждение на email
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
