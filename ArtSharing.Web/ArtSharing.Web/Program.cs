@@ -2,6 +2,7 @@
 using ArtSharing.Data.Models.Models;
 using ArtSharing.Web.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +24,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
+builder.Services.AddTransient<IEmailSender, ArtSharing.Web.Service.FakeEmailSender>();
 var app = builder.Build();
 
 // Seed-ване на базата данни
