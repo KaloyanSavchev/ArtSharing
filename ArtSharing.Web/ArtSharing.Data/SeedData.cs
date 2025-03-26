@@ -81,7 +81,7 @@ namespace ArtSharing.Data
                     {
                         Title = "Test Post",
                         Description = "This is a seed test post.",
-                        ImageUrl = "https://source.unsplash.com/random/800x600",
+                        ImagePath = "https://source.unsplash.com/random/800x600",
                         CreatedAt = DateTime.UtcNow,
                         UserId = adminUser.Id,
                         CategoryId = category.Id

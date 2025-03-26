@@ -17,13 +17,13 @@ namespace ArtSharing.Data.Models.Models
 
         [Required]
         [MaxLength(EntityConstants.PostConstants.TitleMaxLength)]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         [MaxLength(EntityConstants.PostConstants.DescriptionMaxLength)]
         public string Description { get; set; }
 
         [Required]
-        public string ImageUrl { get; set; }
+        public string? ImagePath { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

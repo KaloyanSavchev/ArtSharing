@@ -16,7 +16,7 @@ namespace ArtSharing.Data.Models.Models
         public int Id { get; set; }
 
         [Required, MaxLength(EntityConstants.MessageConstants.ContentMaxLength)]
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
