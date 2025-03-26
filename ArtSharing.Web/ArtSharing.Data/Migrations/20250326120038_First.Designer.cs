@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArtSharing.Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250320082906_First")]
+    [Migration("20250326120038_First")]
     partial class First
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

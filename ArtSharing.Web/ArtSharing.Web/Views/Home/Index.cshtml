@@ -1,8 +1,27 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<ArtSharing.Data.Models.Models.Post>
+
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1 class="text-center my-4">🖼️ Art Feed</h1>
+
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var post in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <img src="@post.ImageUrl" class="card-img-top" alt="@post.Title" style="object-fit:cover; height:200px;">
+                    <div class="card-body">
+                        <h5 class="card-title">@post.Title</h5>
+                        <p class="card-text">@post.Description</p>
+                    </div>
+                    <div class="card-footer text-muted">
+                        by <strong>@post.User.UserName</strong> | @post.Category.Name
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
