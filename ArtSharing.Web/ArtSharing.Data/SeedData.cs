@@ -16,51 +16,49 @@ namespace ArtSharing.Data
 
             await context.Database.MigrateAsync();
 
-            // 👉 Роли
+            // 👉 Създаваме роли, ако ги няма
             if (!await roleManager.RoleExistsAsync("Admin"))
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
 
             if (!await roleManager.RoleExistsAsync("User"))
                 await roleManager.CreateAsync(new IdentityRole("User"));
 
-            // 👉 Админ акаунт
+            // 👉 Проверяваме дали съществува админ акаунт
             var adminEmail = "admin@artsharing.com";
             var adminPassword = "Admin@12345";
 
             var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
-            if (existingAdmin != null)
-            {
-                // 🔥 Изтриваме всички постове на админа, ако има
-                var postsByAdmin = context.Posts.Where(p => p.UserId == existingAdmin.Id);
-                context.Posts.RemoveRange(postsByAdmin);
-                await context.SaveChangesAsync();
+            User adminUser;
 
-                // ❌ След това изтриваме самия админ
-                await userManager.DeleteAsync(existingAdmin);
-            }
-
-            var adminUser = new User
+            if (existingAdmin == null)
             {
-                UserName = adminEmail,
-                Email = adminEmail,
-                EmailConfirmed = true
-            };
+                adminUser = new User
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true
+                };
 
-            var result = await userManager.CreateAsync(adminUser, adminPassword);
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
-                Console.WriteLine("✅ Admin user recreated successfully.");
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                    Console.WriteLine("✅ Admin user created.");
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        Console.WriteLine($"❌ Error creating admin: {error.Description}");
+                    }
+                }
             }
             else
             {
-                foreach (var error in result.Errors)
-                {
-                    Console.WriteLine($"❌ Error creating admin: {error.Description}");
-                }
+                adminUser = existingAdmin;
             }
 
-            // 👉 Категории (ако липсват)
+            // 👉 Добавяме категории, ако липсват
             if (!context.Categories.Any())
             {
                 context.Categories.AddRange(
@@ -70,14 +68,14 @@ namespace ArtSharing.Data
                     new Category { Name = "Nature", Description = "Art featuring natural elements" }
                 );
                 await context.SaveChangesAsync();
+                Console.WriteLine("✅ Categories added.");
             }
 
-            // 👉 Постове
+            // 👉 Добавяме тестов пост, ако няма нито един
             if (!context.Posts.Any())
             {
                 var category = await context.Categories.FirstOrDefaultAsync();
-
-                if (category != null)
+                if (category != null && adminUser != null)
                 {
                     context.Posts.Add(new Post
                     {
@@ -90,6 +88,7 @@ namespace ArtSharing.Data
                     });
 
                     await context.SaveChangesAsync();
+                    Console.WriteLine("✅ Test post added.");
                 }
             }
         }
