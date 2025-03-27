@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using ArtSharing.Data.Models.Constants;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using ArtSharing.Data.Models.Constants;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ArtSharing.Data.Models.Models
 {
@@ -17,23 +12,25 @@ namespace ArtSharing.Data.Models.Models
 
         [Required]
         [MaxLength(EntityConstants.PostConstants.TitleMaxLength)]
-        public string? Title { get; set; }
+        public string Title { get; set; }
 
         [MaxLength(EntityConstants.PostConstants.DescriptionMaxLength)]
         public string Description { get; set; }
 
         [Required]
-        public string? ImagePath { get; set; }
+        public string ImagePath { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("User")]
         public string UserId { get; set; }
+        [BindNever]
         public User User { get; set; }
 
         [ForeignKey("Category")]
-        public int CategoryId { get; set; }  
+        public int CategoryId { get; set; }
+        [BindNever]
         public Category Category { get; set; }
 
         public List<SavedPost> SavedByUsers { get; set; } = new List<SavedPost>();
