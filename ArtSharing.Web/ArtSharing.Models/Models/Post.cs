@@ -26,12 +26,12 @@ namespace ArtSharing.Data.Models.Models
         [ForeignKey("User")]
         public string UserId { get; set; }
         [BindNever]
-        public User User { get; set; }
+        public User? User { get; set; }
 
         [ForeignKey("Category")]
         public int CategoryId { get; set; }
         [BindNever]
-        public Category Category { get; set; }
+        public Category? Category { get; set; }
 
         public List<SavedPost> SavedByUsers { get; set; } = new List<SavedPost>();
 

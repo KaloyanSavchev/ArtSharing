@@ -13,4 +13,11 @@
 <p><strong>Description:</strong> @Model.Description</p>
 <p><small class="text-muted">Posted on: @Model.CreatedAt.ToShortDateString()</small></p>
 
-<a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
+@if (User.Identity.IsAuthenticated &&
+   (User.Identity.Name == Model.User.UserName || User.IsInRole("Admin")))
+{
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
+    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+}
+
+<a asp-action="Index" asp-controller="Home" class="btn btn-secondary mt-3">Back to Home</a>

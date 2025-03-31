@@ -20,7 +20,6 @@ namespace ArtSharing.Web.Controllers
             _userManager = userManager;
         }
 
-        // GET: Post/Create
         [Authorize]
         public IActionResult Create()
         {
@@ -73,9 +72,7 @@ namespace ArtSharing.Web.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var post = await _context.Posts
                 .Include(p => p.User)
@@ -83,11 +80,118 @@ namespace ArtSharing.Web.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (post == null)
-            {
                 return NotFound();
-            }
 
             return View(post);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null)
+                return NotFound();
+
+            var user = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+            if (post.UserId != user.Id && !isAdmin)
+                return Forbid();
+
+            var viewModel = new EditPostViewModel
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Description = post.Description,
+                CategoryId = post.CategoryId,
+                ImagePath = post.ImagePath,
+                UserId = post.UserId,
+                CreatedAt = post.CreatedAt
+            };
+
+            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", post.CategoryId);
+            return View(viewModel);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> Edit(int id, EditPostViewModel model)
+        {
+            if (id != model.Id)
+                return NotFound();
+
+            var user = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null)
+                return NotFound();
+
+            if (post.UserId != user.Id && !isAdmin)
+                return Forbid();
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
+                return View(model);
+            }
+
+            post.Title = model.Title;
+            post.Description = model.Description;
+            post.CategoryId = model.CategoryId;
+
+            _context.Update(post);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var post = await _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (post == null)
+                return NotFound();
+
+            var user = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+            if (post.UserId != user.Id && !isAdmin)
+                return Forbid();
+
+            return View(post);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var post = await _context.Posts.FindAsync(id);
+            var user = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+            if (post == null)
+                return NotFound();
+
+            if (post.UserId != user.Id && !isAdmin)
+                return Forbid();
+
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index", "Home");
         }
     }
 }
