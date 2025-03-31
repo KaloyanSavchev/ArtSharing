@@ -77,6 +77,7 @@ namespace ArtSharing.Web.Controllers
             var post = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
+                .Include(p => p.Likes)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (post == null)
