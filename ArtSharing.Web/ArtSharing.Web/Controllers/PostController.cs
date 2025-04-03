@@ -60,7 +60,7 @@ namespace ArtSharing.Web.Controllers
                 ImagePath = "/images/" + fileName,
                 UserId = user.Id,
                 CreatedAt = DateTime.UtcNow
-            };
+            }; 
 
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
