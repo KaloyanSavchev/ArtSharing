@@ -1,15 +1,7 @@
 ﻿@model ArtSharing.Data.Models.Models.Post
-@using ArtSharing.Data.Models.Models
-@using Microsoft.AspNetCore.Identity
-@inject UserManager<User> UserManager
 
 @{
     ViewData["Title"] = "Post Details";
-
-    var currentUserId = UserManager.GetUserId(User);
-    var isOwner = Model.UserId == currentUserId;
-    var isAdmin = User.IsInRole("Admin");
-    var userHasLiked = Model.Likes.Any(l => l.UserId == currentUserId);
 }
 
 <h2>@Model.Title</h2>
@@ -21,25 +13,32 @@
 <p><strong>Description:</strong> @Model.Description</p>
 <p><small class="text-muted">Posted on: @Model.CreatedAt.ToShortDateString()</small></p>
 
-@if (User.Identity.IsAuthenticated)
-{
-    <form asp-controller="Like" asp-action="ToggleLike" method="post" class="d-inline">
-        <input type="hidden" name="postId" value="@Model.Id" />
-        <button type="submit" class="btn btn-link p-0">
-            <i class="bi @(userHasLiked ? "bi-heart-fill text-danger" : "bi-heart") fs-3"></i>
-        </button>
-    </form>
-}
-
-@if (isOwner || isAdmin)
-{
-    <p class="text-muted mt-2">❤️ Likes: @Model.Likes.Count</p>
-}
-
-@if (User.Identity.IsAuthenticated && (isOwner || isAdmin))
+@if (User.Identity.IsAuthenticated &&
+   (User.Identity.Name == Model.User.UserName || User.IsInRole("Admin")))
 {
     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
     <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
 }
 
 <a asp-action="Index" asp-controller="Home" class="btn btn-secondary mt-3">Back to Home</a>
+
+<hr />
+
+<h4 class="mt-5">💬 Comments</h4>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <form asp-controller="Comment" asp-action="Create" method="post" class="mb-4">
+        <input type="hidden" name="PostId" value="@Model.Id" />
+        <div class="form-group">
+            <textarea name="Content" class="form-control" placeholder="Write a comment..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
+    </form>
+}
+else
+{
+    <p><a asp-area="Identity" asp-page="/Account/Login">Log in</a> to comment.</p>
+}
+
+<partial name="_CommentsPartial" model="Model.Comments.Where(c => c.ParentCommentId == null).ToList()" />

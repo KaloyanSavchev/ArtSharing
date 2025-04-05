@@ -71,18 +71,25 @@ namespace ArtSharing.Web.Controllers
         [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-                return NotFound();
+            if (id == null) return NotFound();
 
             var post = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
-                .Include(p => p.Likes)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(p => p.Comments)
+                    .ThenInclude(c => c.User)
+                .Include(p => p.Comments)
+                    .ThenInclude(c => c.Replies)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (post == null)
-                return NotFound();
+            if (post == null) return NotFound();
 
+            // Извличаме само root comments
+            var rootComments = post.Comments
+                .Where(c => c.ParentCommentId == null)
+                .ToList();
+
+            ViewBag.Comments = rootComments;
             return View(post);
         }
 
@@ -108,15 +115,14 @@ namespace ArtSharing.Web.Controllers
                 Title = post.Title,
                 Description = post.Description,
                 CategoryId = post.CategoryId,
-                ImagePath = post.ImagePath,
+                CreatedAt = post.CreatedAt,
                 UserId = post.UserId,
-                CreatedAt = post.CreatedAt
+                ImagePath = post.ImagePath
             };
 
             ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", post.CategoryId);
             return View(viewModel);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -136,20 +142,20 @@ namespace ArtSharing.Web.Controllers
             if (post.UserId != user.Id && !isAdmin)
                 return Forbid();
 
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
-                return View(model);
+                post.Title = model.Title;
+                post.Description = model.Description;
+                post.CategoryId = model.CategoryId;
+
+                _context.Update(post);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", "Home");
             }
 
-            post.Title = model.Title;
-            post.Description = model.Description;
-            post.CategoryId = model.CategoryId;
-
-            _context.Update(post);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", "Home");
+            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
+            return View(model);
         }
 
         [Authorize]
@@ -193,6 +199,6 @@ namespace ArtSharing.Web.Controllers
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Home");
-        }
+        }     
     }
 }

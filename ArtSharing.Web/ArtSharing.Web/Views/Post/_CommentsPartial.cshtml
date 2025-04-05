@@ -1,0 +1,30 @@
+﻿@model List<ArtSharing.Data.Models.Models.Comment>
+
+@foreach (var comment in Model)
+{
+    <div class="mb-3" style="margin-left:@(comment.ParentCommentId != null ? "40px" : "0")">
+        <div class="border p-3 rounded bg-light">
+            <strong>@comment.User.UserName</strong>
+            <p>@comment.Content</p>
+            <small class="text-muted">@comment.CreatedAt.ToShortDateString()</small>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <form asp-controller="Comment" asp-action="Create" method="post" class="mt-2">
+                    <input type="hidden" name="PostId" value="@comment.PostId" />
+                    <input type="hidden" name="ParentCommentId" value="@comment.Id" />
+                    <div class="form-group">
+                        <textarea name="Content" class="form-control" placeholder="Reply to this comment..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-outline-primary mt-1">Reply</button>
+                </form>
+            }
+        </div>
+
+        @* Рекурсивно показване на отговорите (ако има) *@
+        @if (comment.Replies != null && comment.Replies.Count > 0)
+        {
+            @await Html.PartialAsync("_CommentsPartial", comment.Replies)
+        }
+    </div>
+}
