@@ -1,0 +1,25 @@
+﻿@model ArtSharing.Data.Models.Models.Comment
+
+@{
+    ViewData["Title"] = "Edit Comment";
+}
+
+<h3>Edit Comment</h3>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="PostId" />
+
+    <div class="form-group">
+        <label asp-for="Content" class="control-label"></label>
+        <textarea asp-for="Content" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Save</button>
+    <a asp-controller="Post" asp-action="Details" asp-route-id="@Model.PostId" class="btn btn-secondary mt-2">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

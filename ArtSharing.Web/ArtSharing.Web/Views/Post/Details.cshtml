@@ -41,4 +41,5 @@ else
     <p><a asp-area="Identity" asp-page="/Account/Login">Log in</a> to comment.</p>
 }
 
-<partial name="_CommentsPartial" model="Model.Comments.Where(c => c.ParentCommentId == null).ToList()" />
+@await Html.PartialAsync("_CommentsPartial", Model.Comments.Where(c => c.ParentCommentId == null).ToList())
+
