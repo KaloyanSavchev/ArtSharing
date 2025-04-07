@@ -3,6 +3,8 @@ using ArtSharing.Data.Models.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ArtSharing.Web.Models.Dto;
 
 namespace ArtSharing.Web.Controllers
 {
@@ -19,30 +21,50 @@ namespace ArtSharing.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ToggleLike(int postId)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleLike([FromBody] LikeDto data)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
 
-            var existingLike = _context.Likes.FirstOrDefault(l => l.UserId == user.Id && l.PostId == postId);
+            var post = await _context.Posts
+                .Include(p => p.Likes)
+                .FirstOrDefaultAsync(p => p.Id == data.PostId);
 
+            if (post == null)
+                return NotFound();
+
+            var existingLike = post.Likes.FirstOrDefault(l => l.UserId == user.Id);
+
+            bool hasLiked;
             if (existingLike != null)
             {
                 _context.Likes.Remove(existingLike);
+                hasLiked = false;
             }
             else
             {
                 _context.Likes.Add(new Like
                 {
                     UserId = user.Id,
-                    PostId = postId,
+                    PostId = data.PostId,
                     CreatedAt = DateTime.UtcNow
                 });
+                hasLiked = true;
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Details", "Post", new { id = postId });
+
+            var likeCount = await _context.Likes.CountAsync(l => l.PostId == data.PostId);
+
+            return Json(new { hasLiked, likeCount });
         }
+
+    }
+
+    public class LikeDto
+    {
+        public int PostId { get; set; }
     }
 }

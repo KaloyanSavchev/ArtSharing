@@ -9,8 +9,6 @@ namespace ArtSharing.Data
     {
         public static async Task Initialize(IServiceProvider serviceProvider)
         {
-            Console.WriteLine("🟢 Seeding started...");
-
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Post Details";
+    bool hasLiked = Model.Likes.Any(l => l.User?.UserName == User.Identity?.Name);
 }
 
 <h2>@Model.Title</h2>
@@ -13,11 +14,27 @@
 <p><strong>Description:</strong> @Model.Description</p>
 <p><small class="text-muted">Posted on: @Model.CreatedAt.ToShortDateString()</small></p>
 
-@if (User.Identity.IsAuthenticated &&
-   (User.Identity.Name == Model.User.UserName || User.IsInRole("Admin")))
+@if (User.Identity.IsAuthenticated)
 {
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
-    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+    bool userHasLiked = Model.Likes.Any(l => l.User.UserName == User.Identity.Name);
+    <form id="likeForm" method="post">
+        <input type="hidden" id="postId" value="@Model.Id" />
+        <button type="submit" class="btn btn-link p-0" style="font-size: 1.5rem;">
+            <span id="heartIcon" class="@(userHasLiked ? "text-danger" : "text-secondary")">❤️</span>
+        </button>
+    </form>
+
+    @if (User.Identity.Name == Model.User.UserName || User.IsInRole("Admin"))
+    {
+        <span id="likeCount" class="text-muted ms-2">(@Model.Likes.Count like(s))</span>
+    }
+}
+
+@if (User.Identity.IsAuthenticated &&
+  (User.Identity.Name == Model.User.UserName || User.IsInRole("Admin")))
+{
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
 }
 
 <a asp-action="Index" asp-controller="Home" class="btn btn-secondary mt-3">Back to Home</a>
@@ -28,18 +45,51 @@
 
 @if (User.Identity.IsAuthenticated)
 {
-    <form asp-controller="Comment" asp-action="Create" method="post" class="mb-4">
-        <input type="hidden" name="PostId" value="@Model.Id" />
-        <div class="form-group">
-            <textarea name="Content" class="form-control" placeholder="Write a comment..." required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
-    </form>
+        <form asp-controller="Comment" asp-action="Create" method="post" class="mb-4">
+            <input type="hidden" name="PostId" value="@Model.Id" />
+            <div class="form-group">
+                <textarea name="Content" class="form-control" placeholder="Write a comment..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
+        </form>
 }
 else
 {
-    <p><a asp-area="Identity" asp-page="/Account/Login">Log in</a> to comment.</p>
+        <p><a asp-area="Identity" asp-page="/Account/Login">Log in</a> to comment.</p>
 }
 
 @await Html.PartialAsync("_CommentsPartial", Model.Comments.Where(c => c.ParentCommentId == null).ToList())
 
+@section Scripts {
+        <script>
+            document.getElementById("likeForm")?.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const postId = this.dataset.postId || document.getElementById("postId")?.value;
+
+                const response = await fetch('/Like/ToggleLike', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({ postId })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const heartIcon = document.getElementById("heartIcon");
+                    const likeCount = document.getElementById("likeCount");
+
+                    if (heartIcon) {
+                        heartIcon.textContent = result.hasLiked ? "❤️" : "🤍";
+                        heartIcon.className = result.hasLiked ? "text-danger" : "text-secondary";
+                    }
+
+                    if (likeCount) {
+                        likeCount.textContent = `(${result.likeCount} like${result.likeCount === 1 ? "" : "s"})`;
+                    }
+                }
+            });
+        </script>
+}

@@ -76,6 +76,8 @@ namespace ArtSharing.Web.Controllers
             var post = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
+                .Include(p => p.Likes)
+            .ThenInclude(l => l.User)
                 .Include(p => p.Comments)
                     .ThenInclude(c => c.User)
                 .Include(p => p.Comments)
