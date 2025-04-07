@@ -149,5 +149,32 @@ namespace ArtSharing.Web.Controllers
 
             return View(model);
         }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> About(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+                return NotFound();
+
+            var user = await _userManager.Users
+                .Where(u => u.UserName == username)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+                return NotFound();
+                
+            var model = new ProfileViewModel
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                ProfilePicture = user.ProfilePicture,
+                ProfileDescription = user.ProfileDescription,
+                DateRegistered = user.DateRegistered
+            };
+
+            return View(model);
+        }
+
     }
 }
