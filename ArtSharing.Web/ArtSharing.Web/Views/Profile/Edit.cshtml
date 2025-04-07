@@ -1,0 +1,44 @@
+﻿@model ArtSharing.Web.Models.EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<h2>Edit Profile</h2>
+
+<form asp-action="Edit" enctype="multipart/form-data" method="post">
+    <div class="form-group">
+        <label asp-for="UserName"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ProfileDescription"></label>
+        <textarea asp-for="ProfileDescription" class="form-control"></textarea>
+        <span asp-validation-for="ProfileDescription" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Profile Image</label>
+        <input asp-for="ProfileImageFile" type="file" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

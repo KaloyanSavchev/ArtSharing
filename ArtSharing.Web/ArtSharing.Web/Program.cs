@@ -7,17 +7,15 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Добавяме базата данни
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// 2. Добавяме Identity правилно
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false; // Ако не искаш потвърждение на email
+    options.SignIn.RequireConfirmedAccount = false;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();

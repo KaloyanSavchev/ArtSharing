@@ -115,7 +115,8 @@ namespace Temporary.Areas.Identity.Pages.Account
                 {
                     UserName = Input.Username,
                     Email = Input.Email,
-                    DateRegistered = DateTime.UtcNow
+                    DateRegistered = DateTime.UtcNow,
+                    ProfilePicture = "/images/profiles/DefaultUserPicture.png"
                 };
 
                 var result = await _userManager.CreateAsync(user, Input.Password);
