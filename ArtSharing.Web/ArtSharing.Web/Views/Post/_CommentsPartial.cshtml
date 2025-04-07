@@ -3,13 +3,12 @@
 @foreach (var comment in Model)
 {
     <div class="mb-3" style="margin-left:@(comment.ParentCommentId != null ? "40px" : "0")">
-        <div class="border p-3 rounded bg-light">
+        <div class="border p-3 rounded comment-box">
             <strong>@comment.User.UserName</strong>
             <p>@comment.Content</p>
             <small class="text-muted">@comment.CreatedAt.ToShortDateString()</small>
 
             <div class="mt-2">
-            
                 @if (User.Identity.IsAuthenticated &&
                (User.Identity.Name == comment.User.UserName || User.IsInRole("Admin")))
                 {
@@ -21,13 +20,13 @@
 
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <form asp-controller="Comment" asp-action="Create" method="post" class="mt-2">
+                    <form asp-controller="Comment" asp-action="Create" method="post" class="mt-3 comment-form">
                         <input type="hidden" name="PostId" value="@comment.PostId" />
                         <input type="hidden" name="ParentCommentId" value="@comment.Id" />
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <textarea name="Content" class="form-control" placeholder="Reply to this comment..." required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-sm btn-outline-primary mt-1">Reply</button>
+                        <button type="submit" class="btn btn-sm">Reply</button>
                     </form>
                 }
             </div>

@@ -43,18 +43,17 @@
 
 <a asp-action="Index" asp-controller="Home" class="btn btn-secondary mt-3">Back to Home</a>
 
-<hr />
 
 <h4 class="mt-5">💬 Comments</h4>
 
 @if (User.Identity.IsAuthenticated)
 {
-        <form asp-controller="Comment" asp-action="Create" method="post" class="mb-4">
+        <form asp-controller="Comment" asp-action="Create" method="post" class="mb-4 comment-form">
             <input type="hidden" name="PostId" value="@Model.Id" />
-            <div class="form-group">
+            <div class="form-group mb-2">
                 <textarea name="Content" class="form-control" placeholder="Write a comment..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
+            <button type="submit" class="btn">Post Comment</button>
         </form>
 }
 else

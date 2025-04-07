@@ -1,50 +1,25 @@
 ﻿@model ArtSharing.Web.Models.ProfileViewModel
 
 @{
-    ViewData["Title"] = "Your Profile";
+    ViewData["Title"] = "My Profile";
 }
 
 <div class="container mt-5">
-    <h2 class="text-center mb-4">👤 Your Profile</h2>
+    <div class="row">
 
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm p-4">
+        <div class="col-md-3 text-center">
+            <img src="@Model.ProfilePicture" class="img-thumbnail rounded-circle mb-3" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;" />
+        </div>
 
-                @if (!string.IsNullOrEmpty(Model.ProfilePicture))
-                {
-                    <div class="text-center mb-3">
-                        <img src="@Model.ProfilePicture" alt="Profile Picture" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;" />
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center mb-3">
-                        <img src="https://via.placeholder.com/150" alt="No Profile Picture" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px;" />
-                    </div>
-                }
+        <div class="col-md-9">
+            <h2>@Model.UserName</h2>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Phone:</strong> @Model.PhoneNumber</p>
+            <p><strong>Description:</strong> @Model.ProfileDescription</p>
+            <p><strong>Member since:</strong> @Model.DateRegistered.ToShortDateString()</p>
+            <p><strong>Followers:</strong> @Model.FollowersCount | <strong>Following:</strong> @Model.FollowingCount</p>
 
-                <dl class="row">
-                    <dt class="col-sm-4">Username:</dt>
-                    <dd class="col-sm-8">@Model.UserName</dd>
-
-                    <dt class="col-sm-4">Email:</dt>
-                    <dd class="col-sm-8">@Model.Email</dd>
-
-                    <dt class="col-sm-4">Phone:</dt>
-                    <dd class="col-sm-8">@Model.PhoneNumber</dd>
-
-                    <dt class="col-sm-4">Description:</dt>
-                    <dd class="col-sm-8">@Model.ProfileDescription</dd>
-
-                    <dt class="col-sm-4">Registered on:</dt>
-                    <dd class="col-sm-8">@Model.DateRegistered.ToString("MMMM dd, yyyy")</dd>
-                </dl>
-
-                <div class="text-end mt-3">
-                    <a asp-controller="Profile" asp-action="Edit" class="btn btn-outline-primary">Edit Profile</a>
-                </div>
-            </div>
+            <a asp-action="Edit" class="btn btn-primary mt-2">Edit Profile</a>
         </div>
     </div>
 </div>

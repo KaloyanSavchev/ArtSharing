@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ArtSharing.Data.Models.Models
 {
@@ -20,5 +15,4 @@ namespace ArtSharing.Data.Models.Models
         public string FollowingId { get; set; } // Following 
         public User Following { get; set; }
     }
-
 }

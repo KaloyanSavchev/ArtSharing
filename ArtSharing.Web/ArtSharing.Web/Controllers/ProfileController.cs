@@ -30,14 +30,21 @@ namespace ArtSharing.Web.Controllers
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
 
+            var followersCount = await _context.UserFollows.CountAsync(f => f.FollowingId == user.Id);
+            var followingCount = await _context.UserFollows.CountAsync(f => f.FollowerId == user.Id);
+
             var model = new ProfileViewModel
             {
+                UserId = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 ProfilePicture = user.ProfilePicture,
                 ProfileDescription = user.ProfileDescription,
-                DateRegistered = user.DateRegistered
+                DateRegistered = user.DateRegistered,
+                FollowersCount = followersCount,
+                FollowingCount = followingCount,
+                IsOwnProfile = true
             };
 
             return View(model);
@@ -157,12 +164,24 @@ namespace ArtSharing.Web.Controllers
                 return NotFound();
 
             var user = await _userManager.Users
-                .Where(u => u.UserName == username)
-                .FirstOrDefaultAsync();
+                .Include(u => u.Followers)
+                .Include(u => u.Following)
+                .FirstOrDefaultAsync(u => u.UserName == username);
 
             if (user == null)
                 return NotFound();
-                
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            bool isOwnProfile = currentUser != null && currentUser.Id == user.Id;
+
+            bool isFollowing = false;
+            if (currentUser != null && !isOwnProfile)
+            {
+                isFollowing = await _context.UserFollows
+                    .AnyAsync(f => f.FollowerId == currentUser.Id && f.FollowingId == user.Id);
+            }
+
             var model = new ProfileViewModel
             {
                 UserName = user.UserName,
@@ -170,11 +189,59 @@ namespace ArtSharing.Web.Controllers
                 PhoneNumber = user.PhoneNumber,
                 ProfilePicture = user.ProfilePicture,
                 ProfileDescription = user.ProfileDescription,
-                DateRegistered = user.DateRegistered
+                DateRegistered = user.DateRegistered,
+                FollowersCount = user.Followers.Count,
+                FollowingCount = user.Following.Count,
+                IsFollowing = isFollowing,
+                IsOwnProfile = isOwnProfile
             };
 
             return View(model);
         }
 
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleFollow(string username)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            var targetUser = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.UserName == username);
+
+            if (targetUser == null || currentUser == null || currentUser.Id == targetUser.Id)
+                return BadRequest();
+
+            var existingFollow = await _context.UserFollows
+                .FirstOrDefaultAsync(f => f.FollowerId == currentUser.Id && f.FollowingId == targetUser.Id);
+
+            bool isFollowing;
+
+            if (existingFollow != null)
+            {
+                _context.UserFollows.Remove(existingFollow);
+                isFollowing = false;
+            }
+            else
+            {
+                _context.UserFollows.Add(new UserFollow
+                {
+                    FollowerId = currentUser.Id,
+                    FollowingId = targetUser.Id
+                });
+                isFollowing = true;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var followersCount = await _context.UserFollows.CountAsync(f => f.FollowingId == targetUser.Id);
+            var followingCount = await _context.UserFollows.CountAsync(f => f.FollowerId == targetUser.Id);
+
+            return Json(new
+            {
+                isFollowing,
+                followersCount,
+                followingCount
+            });
+        }
     }
 }

@@ -1,20 +1,79 @@
 ﻿@model ArtSharing.Web.Models.ProfileViewModel
 
 @{
-    ViewData["Title"] = "About";
+    ViewData["Title"] = $"{Model.UserName}'s Profile";
 }
 
-<div class="container mt-4">
+<div class="container mt-5">
     <div class="row">
         <div class="col-md-3 text-center">
-            <img src="@Model.ProfilePicture" alt="Profile Picture" class="rounded-circle img-fluid mb-3" style="max-width: 150px;" />
+            <img src="@Model.ProfilePicture" alt="Profile Picture"
+                 class="img-fluid rounded-circle mb-3"
+                 style="width: 150px; height: 150px; object-fit: cover;" />
         </div>
+
         <div class="col-md-9">
             <h2>@Model.UserName</h2>
+
             <p><strong>Email:</strong> @Model.Email</p>
-            <p><strong>Phone:</strong> @(string.IsNullOrEmpty(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</p>
-            <p><strong>Description:</strong> @Model.ProfileDescription</p>
-            <p><small class="text-muted">Joined on: @Model.DateRegistered.ToShortDateString()</small></p>
+            <p><strong>Phone:</strong> @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</p>
+            <p><strong>Member since:</strong> @Model.DateRegistered.ToShortDateString()</p>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ProfileDescription))
+            {
+                <p><strong>About:</strong> @Model.ProfileDescription</p>
+            }
+
+            <div class="mb-3">
+                <span id="followersCount"><strong>@Model.FollowersCount</strong></span> follower@(Model.FollowersCount == 1 ? "" : "s") |
+                <span id="followingCount"><strong>@Model.FollowingCount</strong></span> following
+            </div>
+
+            @if (!Model.IsOwnProfile)
+            {
+                <button id="followBtn"
+                        data-username="@Model.UserName"
+                        class="btn @(Model.IsFollowing ? "btn-danger" : "btn-primary")">
+                    @(Model.IsFollowing ? "Unfollow" : "Follow")
+                </button>
+            }
+            else
+            {
+                <a asp-action="Edit" class="btn btn-outline-secondary">Edit Profile</a>
+            }
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const followBtn = document.getElementById("followBtn");
+
+            if (followBtn) {
+                followBtn.addEventListener("click", async function () {
+                    const username = this.dataset.username;
+
+                    const response = await fetch(`/Profile/ToggleFollow?username=${username}`, {
+                        method: "POST",
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        // Обнови бутона
+                        followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+                        followBtn.className = "btn " + (data.isFollowing ? "btn-danger" : "btn-primary");
+
+                        // Обнови броячите
+                        document.getElementById("followersCount").innerHTML = `<strong>${data.followersCount}</strong>`;
+                        document.getElementById("followingCount").innerHTML = `<strong>${data.followingCount}</strong>`;
+                    }
+                });
+            }
+        });
+    </script>
+}
