@@ -1,4 +1,6 @@
-﻿namespace ArtSharing.Web.Models
+﻿using ArtSharing.Data.Models.Models;
+
+namespace ArtSharing.Web.Models
 {
     public class ProfileViewModel
     {
@@ -23,5 +25,11 @@
         public int FollowingCount { get; set; }
 
         public bool IsOwnProfile { get; set; }
+
+        public List<Post> UserPosts { get; set; } = new();
+
+        public List<Post> LikedPosts { get; set; } = new();
+
+        public string SelectedTab { get; set; } = "MyPosts";
     }
 }

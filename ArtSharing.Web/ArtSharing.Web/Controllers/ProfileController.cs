@@ -22,7 +22,7 @@ namespace ArtSharing.Web.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string tab = "MyPosts")
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -33,22 +33,40 @@ namespace ArtSharing.Web.Controllers
             var followersCount = await _context.UserFollows.CountAsync(f => f.FollowingId == user.Id);
             var followingCount = await _context.UserFollows.CountAsync(f => f.FollowerId == user.Id);
 
+            var myPosts = await _context.Posts
+                .Where(p => p.UserId == user.Id)
+                .Include(p => p.Category)
+                .ToListAsync();
+
+            var likedPosts = await _context.Likes
+                .Where(l => l.UserId == user.Id)
+                .Include(l => l.Post)
+                    .ThenInclude(p => p.User)
+                .Include(l => l.Post)
+                    .ThenInclude(p => p.Category)
+                .Select(l => l.Post)
+                .ToListAsync();
+
             var model = new ProfileViewModel
             {
-                UserId = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 ProfilePicture = user.ProfilePicture,
                 ProfileDescription = user.ProfileDescription,
                 DateRegistered = user.DateRegistered,
+                UserId = user.Id,
                 FollowersCount = followersCount,
                 FollowingCount = followingCount,
-                IsOwnProfile = true
+                IsOwnProfile = true,
+                SelectedTab = tab,
+                UserPosts = myPosts,
+                LikedPosts = likedPosts
             };
 
             return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

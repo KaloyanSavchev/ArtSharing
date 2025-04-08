@@ -6,20 +6,103 @@
 
 <div class="container mt-5">
     <div class="row">
-
         <div class="col-md-3 text-center">
-            <img src="@Model.ProfilePicture" class="img-thumbnail rounded-circle mb-3" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;" />
+            <img src="@Model.ProfilePicture"
+                 class="img-thumbnail rounded-circle mb-3"
+                 alt="Profile Picture"
+                 style="width: 150px; height: 150px; object-fit: cover;" />
         </div>
 
         <div class="col-md-9">
             <h2>@Model.UserName</h2>
             <p><strong>Email:</strong> @Model.Email</p>
-            <p><strong>Phone:</strong> @Model.PhoneNumber</p>
-            <p><strong>Description:</strong> @Model.ProfileDescription</p>
+            <p><strong>Phone:</strong> @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</p>
+            @if (!string.IsNullOrWhiteSpace(Model.ProfileDescription))
+            {
+                <p><strong>Description:</strong> @Model.ProfileDescription</p>
+            }
             <p><strong>Member since:</strong> @Model.DateRegistered.ToShortDateString()</p>
-            <p><strong>Followers:</strong> @Model.FollowersCount | <strong>Following:</strong> @Model.FollowingCount</p>
 
-            <a asp-action="Edit" class="btn btn-primary mt-2">Edit Profile</a>
+            <p>
+                <strong>@Model.FollowersCount</strong> follower@(Model.FollowersCount == 1 ? "" : "s") |
+                <strong>@Model.FollowingCount</strong> following
+            </p>
+
+            <a asp-action="Edit" class="btn btn-outline-secondary">Edit Profile</a>
         </div>
     </div>
+
+    <hr class="my-4" />
+
+    <!-- Toggle Buttons -->
+    <div class="mb-4 text-center">
+        <a asp-action="Index" asp-route-tab="MyPosts"
+           class="btn @(Model.SelectedTab == "MyPosts" ? "btn-dark" : "btn-outline-dark") me-2">My Posts</a>
+
+        <a asp-action="Index" asp-route-tab="LikedPosts"
+           class="btn @(Model.SelectedTab == "LikedPosts" ? "btn-dark" : "btn-outline-dark")">Liked Posts</a>
+    </div>
+
+    <!-- Gallery -->
+    @if (Model.SelectedTab == "MyPosts")
+    {
+        <h4 class="mb-3">🖼 My Posts</h4>
+
+        @if (Model.UserPosts.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @foreach (var post in Model.UserPosts)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="@post.ImagePath" class="card-img-top" style="max-height: 200px; object-fit: cover;" />
+                            <div class="card-body">
+                                <h5 class="card-title">@post.Title</h5>
+                                <p class="card-text text-muted">@post.Category?.Name</p>
+                                <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="btn btn-sm btn-outline-primary">View</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">You haven’t uploaded any posts yet.</p>
+        }
+    }
+    else if (Model.SelectedTab == "LikedPosts")
+    {
+        <h4 class="mb-3">❤️ Liked Posts</h4>
+
+        @if (Model.LikedPosts.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @foreach (var post in Model.LikedPosts)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="@post.ImagePath" class="card-img-top" style="max-height: 200px; object-fit: cover;" />
+                            <div class="card-body">
+                                <h5 class="card-title">@post.Title</h5>
+                                <p class="card-text text-muted">By @post.User.UserName • @post.Category?.Name</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="btn btn-sm btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">You haven’t liked any posts yet.</p>
+        }
+    }
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/like-toggle.js" asp-append-version="true"></script>
+}
