@@ -1,0 +1,11 @@
+﻿@model List<ArtSharing.Data.Models.Models.User>
+
+<ul class="list-group follow-list">
+    @foreach (var u in Model)
+    {
+        <li class="list-group-item d-flex align-items-center">
+            <img src="@u.ProfilePicture" alt="Profile" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;" />
+            <span>@u.UserName</span>
+        </li>
+    }
+</ul>

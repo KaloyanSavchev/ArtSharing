@@ -261,5 +261,64 @@ namespace ArtSharing.Web.Controllers
                 followingCount
             });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadFollowList(string type)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            List<User> users;
+
+            if (type == "followers")
+            {
+                users = await _context.UserFollows
+                    .Where(f => f.FollowingId == user.Id)
+                    .Select(f => f.Follower)
+                    .ToListAsync();
+            }
+            else if (type == "following")
+            {
+                users = await _context.UserFollows
+                    .Where(f => f.FollowerId == user.Id)
+                    .Select(f => f.Following)
+                    .ToListAsync();
+            }
+            else return BadRequest();
+
+            return PartialView("_FollowListPartial", users);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFollowList(string type)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Unauthorized();
+
+            List<User> users = new();
+            if (type == "followers")
+            {
+                users = await _context.UserFollows
+                    .Where(f => f.FollowingId == currentUser.Id)
+                    .Select(f => f.Follower)
+                    .ToListAsync();
+            }
+            else if (type == "following")
+            {
+                users = await _context.UserFollows
+                    .Where(f => f.FollowerId == currentUser.Id)
+                    .Select(f => f.Following)
+                    .ToListAsync();
+            }
+
+            var result = users.Select(u => new
+            {
+                u.UserName,
+                ProfilePicture = string.IsNullOrEmpty(u.ProfilePicture) ? "/images/default-profile.png" : u.ProfilePicture
+            });
+
+            return Json(result);
+        }
+
     }
 }

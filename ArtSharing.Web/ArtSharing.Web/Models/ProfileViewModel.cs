@@ -1,4 +1,5 @@
 ﻿using ArtSharing.Data.Models.Models;
+using ArtSharing.Web.Models.Dto;
 
 namespace ArtSharing.Web.Models
 {
@@ -31,5 +32,9 @@ namespace ArtSharing.Web.Models
         public List<Post> LikedPosts { get; set; } = new();
 
         public string SelectedTab { get; set; } = "MyPosts";
+
+        public List<UserBasicDto> Followers { get; set; }
+
+        public List<UserBasicDto> Following { get; set; }
     }
 }
