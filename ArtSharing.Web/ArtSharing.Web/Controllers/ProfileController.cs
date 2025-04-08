@@ -190,7 +190,6 @@ namespace ArtSharing.Web.Controllers
                 return NotFound();
 
             var currentUser = await _userManager.GetUserAsync(User);
-
             bool isOwnProfile = currentUser != null && currentUser.Id == user.Id;
 
             bool isFollowing = false;
@@ -199,6 +198,11 @@ namespace ArtSharing.Web.Controllers
                 isFollowing = await _context.UserFollows
                     .AnyAsync(f => f.FollowerId == currentUser.Id && f.FollowingId == user.Id);
             }
+
+            var userPosts = await _context.Posts
+                .Where(p => p.UserId == user.Id)
+                .Include(p => p.Category)
+                .ToListAsync();
 
             var model = new ProfileViewModel
             {
@@ -211,10 +215,11 @@ namespace ArtSharing.Web.Controllers
                 FollowersCount = user.Followers.Count,
                 FollowingCount = user.Following.Count,
                 IsFollowing = isFollowing,
-                IsOwnProfile = isOwnProfile
+                IsOwnProfile = isOwnProfile,
+                UserPosts = userPosts
             };
 
-            return View(model);
+            return View("About", model);
         }
 
         [HttpPost]
