@@ -19,13 +19,13 @@ namespace ArtSharing.Data
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
-                Console.WriteLine("✅ Role 'Admin' created.");
+                //Console.WriteLine("✅ Role 'Admin' created.");
             }
 
             if (!await roleManager.RoleExistsAsync("User"))
             {
                 await roleManager.CreateAsync(new IdentityRole("User"));
-                Console.WriteLine("✅ Role 'User' created.");
+                //Console.WriteLine("✅ Role 'User' created.");
             }
 
             var adminEmail = "admin@artsharing.com";
@@ -48,11 +48,11 @@ namespace ArtSharing.Data
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(adminUser, "Admin");
-                    Console.WriteLine("✅ Admin user created.");
+                    //Console.WriteLine("✅ Admin user created.");
                 }
                 else
                 {
-                    Console.WriteLine("❌ Failed to create admin:");
+                    //Console.WriteLine("❌ Failed to create admin:");
                     foreach (var error in result.Errors)
                     {
                         Console.WriteLine($"   - {error.Description}");
@@ -72,7 +72,7 @@ namespace ArtSharing.Data
                     new Category { Name = "Nature", Description = "Art featuring natural elements" }
                 );
                 await context.SaveChangesAsync();
-                Console.WriteLine("✅ Categories seeded.");
+                //Console.WriteLine("✅ Categories seeded.");
             }
             if (!context.Posts.Any())
             {
@@ -90,10 +90,10 @@ namespace ArtSharing.Data
                     });
 
                     await context.SaveChangesAsync();
-                    Console.WriteLine("✅ Test post added.");
+                    //Console.WriteLine("✅ Test post added.");
                 }
             }
-            Console.WriteLine("✅ Seeding complete.");
+            //Console.WriteLine("✅ Seeding complete.");
         }
     }
 }
