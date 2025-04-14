@@ -325,5 +325,25 @@ namespace ArtSharing.Web.Controllers
             return Json(result);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUserPostsPartial(string username)
+        {
+            var user = await _userManager.Users
+                .Include(u => u.Posts)
+                    .ThenInclude(p => p.Category)
+                .Include(u => u.Posts)
+                    .ThenInclude(p => p.Likes)
+                .FirstOrDefaultAsync(u => u.UserName == username);
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            bool isFollowing = await _context.UserFollows.AnyAsync(f =>
+                f.FollowerId == currentUser.Id && f.FollowingId == user.Id);
+
+            if (user == null || (!isFollowing && user.Id != currentUser.Id))
+                return Unauthorized();
+
+            return PartialView("_UserPostsPartial", user.Posts.ToList());
+        }
     }
 }

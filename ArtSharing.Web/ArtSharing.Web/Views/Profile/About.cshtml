@@ -45,34 +45,36 @@
         </div>
     </div>
 
-    @if (Model.UserPosts != null && Model.UserPosts.Any() && (Model.IsOwnProfile || Model.IsFollowing))
-    {
-        <hr class="my-4" />
-        <h4 class="mb-3">🖼 Posts by @Model.UserName</h4>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            @foreach (var post in Model.UserPosts)
-            {
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="@post.ImagePath" class="card-img-top" style="max-height: 200px; object-fit: cover;" />
-                        <div class="card-body">
-                            <h5 class="card-title">@post.Title</h5>
-                            <p class="card-text text-muted">@post.Category?.Name</p>
-                            <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="btn btn-sm btn-outline-primary">View</a>
+    <div id="userPostsSection" class="mt-5">
+        @if (Model.UserPosts != null && Model.UserPosts.Any() && (Model.IsOwnProfile || Model.IsFollowing))
+        {
+            <hr class="my-4" />
+            <h4 class="mb-3">🖼 Posts by @Model.UserName</h4>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @foreach (var post in Model.UserPosts)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="@post.ImagePath" class="card-img-top" style="max-height: 200px; object-fit: cover;" />
+                            <div class="card-body">
+                                <h5 class="card-title">@post.Title</h5>
+                                <p class="card-text text-muted">@post.Category?.Name</p>
+                                <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="btn btn-sm btn-outline-primary">View</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-    }
-    else if (!Model.IsOwnProfile && !Model.IsFollowing)
-    {
-        <p class="text-muted mt-4">You need to follow this user to see their posts.</p>
-    }
-    else
-    {
-        <p class="text-muted mt-4">This user hasn’t uploaded any posts yet.</p>
-    }
+                }
+            </div>
+        }
+        else if (!Model.IsOwnProfile && !Model.IsFollowing)
+        {
+            <p class="text-muted mt-4">You need to follow this user to see their posts.</p>
+        }
+        else
+        {
+            <p class="text-muted mt-4">This user hasn’t uploaded any posts yet.</p>
+        }
+    </div>
 </div>
 
 @section Scripts {
@@ -95,12 +97,22 @@
 
                     if (response.ok) {
                         const data = await response.json();
-
+                       
                         followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
                         followBtn.className = "btn " + (data.isFollowing ? "btn-danger" : "btn-primary");
 
                         document.getElementById("followersCount").innerHTML = `<strong>${data.followersCount}</strong>`;
                         document.getElementById("followingCount").innerHTML = `<strong>${data.followingCount}</strong>`;
+
+                        const postsSection = document.getElementById("userPostsSection");
+
+                        if (data.isFollowing) {
+                            const postsResponse = await fetch(`/Profile/GetUserPostsPartial?username=${username}`);
+                            const html = await postsResponse.text();
+                            postsSection.innerHTML = html;
+                        } else {
+                            postsSection.innerHTML = `<p class="text-muted mt-4">You need to follow this user to see their posts.</p>`;
+                        }
                     }
                 });
             }

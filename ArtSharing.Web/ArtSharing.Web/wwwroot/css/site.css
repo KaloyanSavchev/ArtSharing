@@ -1,5 +1,4 @@
-﻿/* Основни настройки */
-html.dark-mode-preload body {
+﻿html.dark-mode-preload body {
     background-color: #121212;
     color: #f1f1f1;
 }
@@ -9,13 +8,11 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-    /* Dark mode основен фон */
     body.dark-mode {
         background-color: #121212;
         color: #f1f1f1;
     }
 
-        /* Компоненти в dark mode */
         body.dark-mode .navbar,
         body.dark-mode .card,
         body.dark-mode .form-control,
@@ -85,7 +82,6 @@ body {
             border-color: #444;
         }
 
-        /* Коментари */
         body.dark-mode .comment-box,
         body.dark-mode .comment-reply {
             background-color: #1e1e1e !important;
@@ -123,7 +119,6 @@ body {
             display: none;
         }
 
-/* === OVERLAY === */
 
 .overlay {
     position: fixed;
@@ -145,10 +140,11 @@ body {
     max-width: 400px;
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    position: relative;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Dark overlay */
 body.dark-mode .overlay-content {
     background-color: #1e1e1e;
     color: #f1f1f1;

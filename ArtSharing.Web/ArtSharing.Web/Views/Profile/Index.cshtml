@@ -107,25 +107,23 @@
     }
 </div>
 
-<!-- Overlay за Followers/Following -->
 <div id="overlay" class="overlay" style="display: none;">
-    <div class="overlay-content text-start">
-        <button id="closeOverlay" class="btn-close float-end" aria-label="Close"></button>
-        <h5 id="overlayTitle" class="mb-3">Followers</h5>
-        <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by username..." />
+    <div class="overlay-content">
+        <button id="closeOverlay" class="btn-close float-end"></button>
+        <h5 id="overlayTitle">Followers</h5>
+        <input type="text" id="searchInput" class="form-control my-2" placeholder="Search by username..." />
         <div id="userList" class="list-group overflow-auto" style="max-height: 400px;"></div>
+        <p id="noUsersMessage" class="text-muted text-center mt-2" style="display: none;">No users found.</p>
     </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/like-toggle.js" asp-append-version="true"></script>
-
     <script>
         const overlay = document.getElementById('overlay');
         const userList = document.getElementById('userList');
         const searchInput = document.getElementById('searchInput');
         const overlayTitle = document.getElementById('overlayTitle');
+        const noUsersMessage = document.getElementById('noUsersMessage');
 
         document.getElementById('followersLink')?.addEventListener('click', function (e) {
             e.preventDefault();
@@ -141,34 +139,40 @@
             overlay.style.display = 'none';
         });
 
-        searchInput?.addEventListener('input', function () {
-            const query = this.value.toLowerCase();
-            document.querySelectorAll('#userList .list-group-item').forEach(item => {
-                const name = item.textContent.toLowerCase();
-                item.style.display = name.includes(query) ? '' : 'none';
-            });
-        });
-
         async function fetchUsers(type) {
-            try {
-                const res = await fetch(`/Profile/GetFollowList?type=${type}`);
-                const users = await res.json();
+            const res = await fetch(`/Profile/GetFollowList?type=${type}`);
+            const users = await res.json();
 
-                overlayTitle.textContent = type === 'followers' ? 'Followers' : 'Following';
-                userList.innerHTML = '';
+            overlayTitle.textContent = type === 'followers' ? 'Followers' : 'Following';
+            userList.innerHTML = '';
+            noUsersMessage.style.display = 'none';
+            searchInput.value = '';
 
-                users.forEach(user => {
-                    const item = document.createElement('a');
-                    item.className = 'list-group-item list-group-item-action d-flex align-items-center';
-                    item.href = `/Profile/About?username=${user.userName}`;
-                    item.innerHTML = `<img src="${user.profilePicture}" class="rounded me-2" style="width: 30px; height: 30px; object-fit: cover;"> ${user.userName}`;
-                    userList.appendChild(item);
+            users.forEach(user => {
+                const item = document.createElement('a');
+                item.className = 'list-group-item list-group-item-action';
+                item.href = `/Profile/About?username=${user.userName}`;
+                item.innerHTML = `<img src="${user.profilePicture}" class="rounded me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                          ${user.userName}`;
+                userList.appendChild(item);
+            });
+
+            overlay.style.display = 'block';
+
+            searchInput.oninput = function () {
+                const query = this.value.toLowerCase();
+                let visibleCount = 0;
+
+                document.querySelectorAll('#userList .list-group-item').forEach(item => {
+                    const name = item.textContent.toLowerCase();
+                    const isMatch = name.includes(query);
+                    item.style.display = isMatch ? '' : 'none';
+                    if (isMatch) visibleCount++;
                 });
 
-                overlay.style.display = 'flex';
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
+                noUsersMessage.style.display = visibleCount === 0 ? 'block' : 'none';
+            };
         }
     </script>
 }
+
