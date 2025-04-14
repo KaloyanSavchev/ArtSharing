@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@using ArtSharing.Data.Models.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -31,6 +37,7 @@
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
@@ -39,10 +46,24 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="Create">Upload</a>
                         </li>
+
+                        @* 👇 Admin Panel Dropdown, само ако потребителят е админ *@
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin Panel
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="ManageModerators">Manage Moderators</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="ManageCategories">Manage Categories</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reported">Reported</a></li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
 
                     <button id="themeToggleBtn" class="btn btn-sm btn-outline-secondary me-3">🌙</button>
-
                     <partial name="_LoginPartial" />
                 </div>
             </div>
@@ -54,12 +75,6 @@
             @RenderBody()
         </main>
     </div>
-    @*
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - ArtSharing.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>*@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
