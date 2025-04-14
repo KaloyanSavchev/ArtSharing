@@ -17,6 +17,7 @@ namespace ArtSharing.Web.Controllers
             _logger = logger;
         }
 
+        // Начална страница
         public async Task<IActionResult> Index()
         {
             var posts = await _context.Posts
@@ -25,23 +26,45 @@ namespace ArtSharing.Web.Controllers
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+
             return View(posts);
         }
 
+        // Зареждане на още постове при скрол
         [HttpGet]
-        public IActionResult LoadMorePosts(int skip)
+        public async Task<IActionResult> LoadMorePosts(int skip)
         {
-            var posts = _context.Posts
+            var posts = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip(skip)
                 .Take(6)
-                .ToList();
+                .ToListAsync();
 
-            return PartialView("_PostCardListPartial", posts);
+            return PartialView("_PostCardListPartial", posts); // трябва да съществува
         }
 
+        // Филтриране по категория + търсене
+        [HttpGet]
+        public async Task<IActionResult> FilterPosts(string? searchTerm, int? categoryId)
+        {
+            var posts = await _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Category)
+                .Where(p =>
+                    (string.IsNullOrEmpty(searchTerm) ||
+                     p.Title.Contains(searchTerm) ||
+                     p.Description.Contains(searchTerm)) &&
+                    (!categoryId.HasValue || p.CategoryId == categoryId.Value))
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            return PartialView("_PostCardListPartial", posts); // трябва да съществува
+        }
+
+        // Грешка
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

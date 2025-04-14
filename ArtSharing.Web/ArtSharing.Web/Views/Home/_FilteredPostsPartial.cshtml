@@ -1,0 +1,6 @@
+﻿@model List<ArtSharing.Data.Models.Models.Post>
+
+@foreach (var post in Model)
+{
+    @await Html.PartialAsync("_PostCardPartial", post)
+}

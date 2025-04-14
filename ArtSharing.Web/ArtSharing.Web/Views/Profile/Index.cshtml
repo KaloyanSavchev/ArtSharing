@@ -58,16 +58,7 @@
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 @foreach (var post in Model.UserPosts)
                 {
-                    <div class="col">
-                        <div class="card h-100">
-                            <img src="@post.ImagePath" class="card-img-top" style="max-height: 200px; object-fit: cover;" />
-                            <div class="card-body">
-                                <h5 class="card-title">@post.Title</h5>
-                                <p class="card-text text-muted">@post.Category?.Name</p>
-                                <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="btn btn-sm btn-outline-primary">View</a>
-                            </div>
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_PostCardPartial", post)
                 }
             </div>
         }
@@ -85,18 +76,7 @@
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 @foreach (var post in Model.LikedPosts)
                 {
-                    <div class="col">
-                        <div class="card h-100">
-                            <img src="@post.ImagePath" class="card-img-top" style="max-height: 200px; object-fit: cover;" />
-                            <div class="card-body">
-                                <h5 class="card-title">@post.Title</h5>
-                                <p class="card-text text-muted">By @post.User.UserName • @post.Category?.Name</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="btn btn-sm btn-outline-primary">View</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_PostCardPartial", post)
                 }
             </div>
         }
@@ -107,6 +87,7 @@
     }
 </div>
 
+<!-- Overlay за Followers/Following -->
 <div id="overlay" class="overlay" style="display: none;">
     <div class="overlay-content">
         <button id="closeOverlay" class="btn-close float-end"></button>
@@ -175,4 +156,3 @@
         }
     </script>
 }
-

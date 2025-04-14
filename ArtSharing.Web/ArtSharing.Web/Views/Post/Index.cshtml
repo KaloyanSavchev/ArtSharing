@@ -7,8 +7,9 @@
         {
             <div class="col">
                 <div class="card h-100 shadow-sm">
-                    <div class="img-wrapper">
-                        <img src="@post.ImagePath" alt="@post.Title" />
+                    <div class="image-card-wrapper">
+                        <div class="image-blur-bg" style="background-image: url('@post.ImagePath')"></div>
+                        <img src="@post.ImagePath" alt="@post.Title" class="main-image" />
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">@post.Title</h5>

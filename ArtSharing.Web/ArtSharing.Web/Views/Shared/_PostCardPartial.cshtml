@@ -1,7 +1,7 @@
 ﻿@model ArtSharing.Data.Models.Models.Post
 
 <div class="col">
-    <div class="card h-100 shadow-sm">
+    <div class="card h-100 shadow-sm" data-category-id="@Model.CategoryId">
         <div class="image-card-wrapper">
             <div class="image-blur-bg" style="background-image: url('@Model.ImagePath');"></div>
             <img src="@Model.ImagePath" alt="@Model.Title" class="main-image" />
@@ -12,7 +12,7 @@
             <a asp-controller="Post" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
         </div>
         <div class="card-footer text-muted">
-            by <strong>@Model.User.UserName</strong> | @Model.Category.Name
+            by <strong>@Model.User.UserName</strong> | @Model.Category?.Name
         </div>
     </div>
 </div>
