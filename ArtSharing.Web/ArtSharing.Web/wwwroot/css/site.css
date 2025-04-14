@@ -8,36 +8,6 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-.image-container {
-    height: 250px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
-    overflow: hidden;
-}
-.image-wrapper {
-    height: 250px;
-    background-color: #f8f9fa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
-
-    .image-wrapper img {
-        max-height: 100%;
-        max-width: 100%;
-        object-fit: contain;
-    }
-
-.responsive-image {
-    max-height: 100%;
-    max-width: 100%;
-    object-fit: contain;
-}
-
 .image-card-wrapper {
     position: relative;
     height: 250px;
@@ -69,117 +39,121 @@ body {
     display: block;
     object-fit: contain;
 }
-    body.dark-mode {
-        background-color: #121212;
+
+body.dark-mode {
+    background-color: #121212;
+    color: #f1f1f1;
+}
+
+    body.dark-mode .navbar,
+    body.dark-mode .card,
+    body.dark-mode .form-control,
+    body.dark-mode .form-select,
+    body.dark-mode .form-check-input,
+    body.dark-mode .btn,
+    body.dark-mode input,
+    body.dark-mode textarea {
+        background-color: #1e1e1e !important;
+        color: #f1f1f1 !important;
+        border-color: #333 !important;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        body.dark-mode .form-control::placeholder,
+        body.dark-mode input::placeholder,
+        body.dark-mode textarea::placeholder {
+            color: #aaa;
+        }
+
+    body.dark-mode a {
+        color: #90caf9;
+    }
+
+        body.dark-mode a:hover {
+            color: #64b5f6;
+        }
+
+    body.dark-mode .btn-primary {
+        background-color: #1976d2;
+        border-color: #1565c0;
+        color: #fff;
+    }
+
+    body.dark-mode .btn-danger {
+        background-color: #d32f2f;
+        border-color: #c62828;
+        color: #fff;
+    }
+
+    body.dark-mode .btn-outline-secondary {
+        border-color: #aaa;
         color: #f1f1f1;
     }
 
-        body.dark-mode .navbar,
-        body.dark-mode .card,
-        body.dark-mode .form-control,
-        body.dark-mode .form-select,
-        body.dark-mode .form-check-input,
-        body.dark-mode .btn,
-        body.dark-mode input,
-        body.dark-mode textarea {
-            background-color: #1e1e1e !important;
-            color: #f1f1f1 !important;
-            border-color: #333 !important;
-            transition: background-color 0.3s, color 0.3s;
+    body.dark-mode .text-dark {
+        color: #f1f1f1 !important;
+    }
+
+    body.dark-mode .border {
+        border-color: #444 !important;
+    }
+
+    body.dark-mode .dropdown-menu {
+        background-color: #1e1e1e;
+        color: #f1f1f1;
+        border-color: #333;
+    }
+
+    body.dark-mode table {
+        background-color: #1e1e1e;
+        color: #f1f1f1;
+    }
+
+    body.dark-mode th,
+    body.dark-mode td {
+        border-color: #444;
+    }
+
+    body.dark-mode .comment-box,
+    body.dark-mode .comment-reply {
+        background-color: #1e1e1e !important;
+        color: #f1f1f1 !important;
+        border-color: #333 !important;
+    }
+
+    body.dark-mode .comment-form {
+        background-color: #1e1e1e;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #444;
+        color: #f1f1f1;
+    }
+
+        body.dark-mode .comment-form textarea,
+        body.dark-mode .comment-form input[type="text"] {
+            background-color: #2a2a2a;
+            color: #f1f1f1;
+            border: 1px solid #555;
         }
 
-            body.dark-mode .form-control::placeholder,
-            body.dark-mode input::placeholder,
-            body.dark-mode textarea::placeholder {
+            body.dark-mode .comment-form textarea::placeholder,
+            body.dark-mode .comment-form input::placeholder {
                 color: #aaa;
             }
 
-        body.dark-mode a {
-            color: #90caf9;
-        }
-
-            body.dark-mode a:hover {
-                color: #64b5f6;
-            }
-
-        body.dark-mode .btn-primary {
+        body.dark-mode .comment-form button {
             background-color: #1976d2;
             border-color: #1565c0;
             color: #fff;
         }
 
-        body.dark-mode .btn-danger {
-            background-color: #d32f2f;
-            border-color: #c62828;
-            color: #fff;
-        }
+    body.dark-mode hr {
+        display: none;
+    }
 
-        body.dark-mode .btn-outline-secondary {
-            border-color: #aaa;
-            color: #f1f1f1;
-        }
-
-        body.dark-mode .text-dark {
-            color: #f1f1f1 !important;
-        }
-
-        body.dark-mode .border {
-            border-color: #444 !important;
-        }
-
-        body.dark-mode .dropdown-menu {
-            background-color: #1e1e1e;
-            color: #f1f1f1;
-            border-color: #333;
-        }
-
-        body.dark-mode table {
-            background-color: #1e1e1e;
-            color: #f1f1f1;
-        }
-
-        body.dark-mode th,
-        body.dark-mode td {
-            border-color: #444;
-        }
-
-        body.dark-mode .comment-box,
-        body.dark-mode .comment-reply {
-            background-color: #1e1e1e !important;
-            color: #f1f1f1 !important;
-            border-color: #333 !important;
-        }
-
-        body.dark-mode .comment-form {
-            background-color: #1e1e1e;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid #444;
-            color: #f1f1f1;
-        }
-
-            body.dark-mode .comment-form textarea,
-            body.dark-mode .comment-form input[type="text"] {
-                background-color: #2a2a2a;
-                color: #f1f1f1;
-                border: 1px solid #555;
-            }
-
-                body.dark-mode .comment-form textarea::placeholder,
-                body.dark-mode .comment-form input::placeholder {
-                    color: #aaa;
-                }
-
-            body.dark-mode .comment-form button {
-                background-color: #1976d2;
-                border-color: #1565c0;
-                color: #fff;
-            }
-
-        body.dark-mode hr {
-            display: none;
-        }
-
+    body.dark-mode .image-blur-bg {
+        filter: blur(10px) brightness(0.7);
+    }
 
 .overlay {
     position: fixed;

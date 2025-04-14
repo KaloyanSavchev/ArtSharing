@@ -1,4 +1,5 @@
-﻿@model List<ArtSharing.Data.Models.Models.Post>
+﻿@using ArtSharing.Data.Models.Models
+@model List<Post>
 
 @{
     ViewData["Title"] = "Home";
@@ -7,28 +8,50 @@
 <h1 class="text-center my-4">🖼️ Art Feed</h1>
 
 <div class="container">
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var post in Model)
+    <div id="postContainer" class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var post in Model.Take(6))
         {
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <div class="image-card-wrapper">
-                        <div class="image-blur-bg" style="background-image: url('@post.ImagePath');"></div>
-                        <img src="@post.ImagePath" alt="@post.Title" class="main-image" />
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">@post.Title</h5>
-                        <p class="card-text">@post.Description</p>
-
-                        <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="btn btn-sm btn-outline-primary mt-2">
-                            View Details
-                        </a>
-                    </div>
-                    <div class="card-footer text-muted">
-                        by <strong>@post.User.UserName</strong> | @post.Category.Name
-                    </div>
-                </div>
-            </div>
+            @await Html.PartialAsync("_PostCardPartial", post)
         }
     </div>
+
+    <div class="text-center mt-4">
+        <span id="loadingSpinner" class="spinner-border text-primary" style="display: none;"></span>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        let loadedCount = 6;
+        let isLoading = false;
+
+        async function loadMorePosts() {
+            if (isLoading) return;
+            isLoading = true;
+            document.getElementById("loadingSpinner").style.display = "inline-block";
+
+            const response = await fetch(`/Home/LoadMorePosts?skip=${loadedCount}`);
+            const html = await response.text();
+
+            if (html.trim()) {
+                const container = document.getElementById("postContainer");
+                container.insertAdjacentHTML("beforeend", html);
+                loadedCount += 6;
+            } else {
+                // No more posts to load
+                window.removeEventListener("scroll", scrollHandler);
+            }
+
+            isLoading = false;
+            document.getElementById("loadingSpinner").style.display = "none";
+        }
+
+        function scrollHandler() {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
+                loadMorePosts();
+            }
+        }
+
+        window.addEventListener("scroll", scrollHandler);
+    </script>
+}

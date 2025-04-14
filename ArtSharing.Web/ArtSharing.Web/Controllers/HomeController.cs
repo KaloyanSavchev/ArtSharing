@@ -28,6 +28,20 @@ namespace ArtSharing.Web.Controllers
             return View(posts);
         }
 
+        [HttpGet]
+        public IActionResult LoadMorePosts(int skip)
+        {
+            var posts = _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Category)
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip(skip)
+                .Take(6)
+                .ToList();
+
+            return PartialView("_PostCardListPartial", posts);
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
