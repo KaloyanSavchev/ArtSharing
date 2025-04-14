@@ -7,7 +7,9 @@
         {
             <div class="col">
                 <div class="card h-100">
-                    <img src="@post.ImagePath" class="card-img-top" style="max-height: 200px; object-fit: cover;" />
+                    <div class="image-container">
+                        <img src="@post.ImagePath" class="responsive-image" />
+                    </div>  
                     <div class="card-body">
                         <h5 class="card-title">@post.Title</h5>
                         <p class="card-text text-muted">@post.Category?.Name</p>

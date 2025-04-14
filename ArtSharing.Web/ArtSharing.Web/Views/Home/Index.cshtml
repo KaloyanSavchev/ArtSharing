@@ -12,7 +12,10 @@
         {
             <div class="col">
                 <div class="card h-100 shadow-sm">
-                    <img src="@post.ImagePath" class="card-img-top" alt="@post.Title" style="object-fit:cover; height:200px;">
+                    <div class="image-card-wrapper">
+                        <div class="image-blur-bg" style="background-image: url('@post.ImagePath');"></div>
+                        <img src="@post.ImagePath" alt="@post.Title" class="main-image" />
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title">@post.Title</h5>
                         <p class="card-text">@post.Description</p>
