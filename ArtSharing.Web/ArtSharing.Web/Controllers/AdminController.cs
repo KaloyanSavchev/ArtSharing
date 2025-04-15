@@ -39,5 +39,40 @@ namespace ArtSharing.Web.Controllers
 
             return RedirectToAction("ManageCategories");
         }
+
+        public async Task<IActionResult> EditCategory(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return NotFound();
+
+            return View(category);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCategory(int id, Category updatedCategory)
+        {
+            if (id != updatedCategory.Id) return BadRequest();
+
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return NotFound();
+
+            category.Name = updatedCategory.Name;
+            category.Description = updatedCategory.Description;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(ManageCategories));
+        }
+
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return NotFound();
+
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ManageCategories));
+        }
     }
 }
