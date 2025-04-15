@@ -47,7 +47,6 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="Create">Upload</a>
                         </li>
 
-                        @* 👇 Admin Panel Dropdown, само ако потребителят е админ *@
                         @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {
                             <li class="nav-item dropdown">

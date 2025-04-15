@@ -1,5 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<ArtSharing.Data.Models.Models.Category>
 @{
+    ViewData["Title"] = "Manage Categories";
 }
+
+<h2>Manage Categories</h2>
+
+<form asp-action="CreateCategory" method="post" class="mb-4">
+    <div class="mb-2">
+        <label>Name</label>
+        <input type="text" name="name" class="form-control" required />
+    </div>
+    <div class="mb-2">
+        <label>Description</label>
+        <textarea name="description" class="form-control" rows="2" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Category</button>
+</form>
+
+<h4>Existing Categories</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td>@category.Description</td>
+            </tr>
+        }
+    </tbody>
+</table>

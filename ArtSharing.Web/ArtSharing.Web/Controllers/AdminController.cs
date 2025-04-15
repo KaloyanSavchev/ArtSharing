@@ -1,24 +1,43 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ArtSharing.Data.Models.Models;
+using ArtSharing.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ArtSharing.Web.Models;
 
 namespace ArtSharing.Web.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        public IActionResult ManageModerators()
+        private readonly ApplicationDbContext _context;
+
+        public AdminController(ApplicationDbContext context)
         {
-            return View();
+            _context = context;
         }
 
         public IActionResult ManageCategories()
         {
-            return View();
+            var categories = _context.Categories.ToList();
+            return View(categories);
         }
 
-        public IActionResult Reported()
+        [HttpPost]
+        public async Task<IActionResult> CreateCategory(string name, string description)
         {
-            return View();
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                var category = new Category
+                {
+                    Name = name,
+                    Description = description
+                };
+
+                _context.Categories.Add(category);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("ManageCategories");
         }
     }
 }
