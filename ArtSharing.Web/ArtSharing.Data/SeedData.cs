@@ -27,6 +27,12 @@ namespace ArtSharing.Data
                 await roleManager.CreateAsync(new IdentityRole("User"));
                 //Console.WriteLine("✅ Role 'User' created.");
             }
+            if (!await roleManager.RoleExistsAsync("Moderator"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Moderator"));
+                //Console.WriteLine("✅ Role 'Moderator' created.");
+            }
+
 
             var adminEmail = "admin@artsharing.com";
             var adminPassword = "Admin@12345";

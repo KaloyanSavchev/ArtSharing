@@ -22,10 +22,9 @@
     @await Html.PartialAsync("_LikeButtonPartial", Model)
 }
 
-@if (User.Identity.IsAuthenticated &&
-  (User.Identity.Name == Model.User.UserName || User.IsInRole("Admin")))
+@if (User.Identity.Name == Model.User.UserName || User.IsInRole("Admin") || User.IsInRole("Moderator"))
 {
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
     <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
 }
 

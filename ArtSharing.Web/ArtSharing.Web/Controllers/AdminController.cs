@@ -1,21 +1,26 @@
-﻿using ArtSharing.Data.Models.Models;
-using ArtSharing.Data;
+﻿using ArtSharing.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using ArtSharing.Web.Models;
 
 namespace ArtSharing.Web.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    using ArtSharing.Data.Models.Models;
+    using ArtSharing.Web.Models;
+
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public AdminController(ApplicationDbContext context)
+
+        public AdminController(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         public IActionResult ManageCategories()
         {
             var categories = _context.Categories.ToList();
@@ -23,6 +28,7 @@ namespace ArtSharing.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Moderator")]
         public async Task<IActionResult> CreateCategory(string name, string description)
         {
             if (!string.IsNullOrWhiteSpace(name))
@@ -40,6 +46,7 @@ namespace ArtSharing.Web.Controllers
             return RedirectToAction("ManageCategories");
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         public async Task<IActionResult> EditCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -50,6 +57,7 @@ namespace ArtSharing.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Moderator")]
         public async Task<IActionResult> EditCategory(int id, Category updatedCategory)
         {
             if (id != updatedCategory.Id) return BadRequest();
@@ -64,6 +72,7 @@ namespace ArtSharing.Web.Controllers
             return RedirectToAction(nameof(ManageCategories));
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -73,6 +82,45 @@ namespace ArtSharing.Web.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(ManageCategories));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ManageModerators()
+        {
+            var users = _userManager.Users.ToList();
+
+            var model = new List<UserWithRolesViewModel>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                model.Add(new UserWithRolesViewModel
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Roles = roles.ToList()
+                });
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> PromoteToModerator(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            // Проверка дали вече е модератор или админ
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains("Moderator") && !roles.Contains("Admin"))
+            {
+                await _userManager.AddToRoleAsync(user, "Moderator");
+            }
+
+            return RedirectToAction("ManageModerators");
         }
     }
 }
