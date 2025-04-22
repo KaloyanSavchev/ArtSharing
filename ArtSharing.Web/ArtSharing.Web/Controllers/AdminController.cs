@@ -84,7 +84,7 @@ namespace ArtSharing.Web.Controllers
             return RedirectToAction(nameof(ManageCategories));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Moderator")]
         public async Task<IActionResult> ManageModerators()
         {
             var users = _userManager.Users.ToList();

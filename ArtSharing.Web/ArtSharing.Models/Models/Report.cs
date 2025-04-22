@@ -10,23 +10,30 @@ namespace ArtSharing.Data.Models.Models
 {
     public class Report
     {
-        [Key]
         public int Id { get; set; }
 
         [Required]
-        public string Reason { get; set; }
-
-        [ForeignKey("ReportedBy")]
-        public string ReportedById { get; set; }
-        public User ReportedBy { get; set; }
-
-        public int? PostId { get; set; }
-        public Post Post { get; set; }
-
-        public int? CommentId { get; set; }
-        public Comment Comment { get; set; }
+        public string ReporterId { get; set; }
+        [ForeignKey(nameof(ReporterId))]
+        public User Reporter { get; set; }
 
         [Required]
+        public string TargetType { get; set; }
+
+        public int? TargetPostId { get; set; }
+        public Post? TargetPost { get; set; }
+
+        public int? TargetCommentId { get; set; }
+        public Comment? TargetComment { get; set; }
+
+        public string? TargetUserId { get; set; }
+        public User? TargetUser { get; set; }
+
+        [Required]
+        [StringLength(200)]
+        public string Reason { get; set; }
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } = "Pending"; 
     }
 }

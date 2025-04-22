@@ -44,10 +44,28 @@ namespace ArtSharing.Data
              .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Report>()
-            .HasOne(r => r.ReportedBy)
-            .WithMany(u => u.Reports)
-            .HasForeignKey(r => r.ReportedById)
-            .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(r => r.Reporter)
+                .WithMany()
+                .HasForeignKey(r => r.ReporterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.TargetUser)
+                .WithMany()
+                .HasForeignKey(r => r.TargetUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.TargetPost)
+                .WithMany()
+                .HasForeignKey(r => r.TargetPostId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.TargetComment)
+                .WithMany()
+                .HasForeignKey(r => r.TargetCommentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Comment>()
             .HasOne(c => c.ParentComment)

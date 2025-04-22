@@ -22,16 +22,30 @@
                 <td>@user.Email</td>
                 <td>@string.Join(", ", user.Roles)</td>
                 <td>
-                    @if (!user.Roles.Contains("Admin") && !user.Roles.Contains("Moderator"))
+                    @if (User.IsInRole("Admin"))
                     {
-                        <form asp-action="PromoteToModerator" method="post">
-                            <input type="hidden" name="id" value="@user.Id" />
-                            <button type="submit" class="btn btn-sm btn-success">Promote to Moderator</button>
-                        </form>
+                        if (!user.Roles.Contains("Admin") && !user.Roles.Contains("Moderator"))
+                        {
+                            <form asp-action="PromoteToModerator" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <button type="submit" class="btn btn-sm btn-success">Promote to Moderator</button>
+                            </form>
+                        }
+                        else if (user.Roles.Contains("Moderator") && !user.Roles.Contains("Admin"))
+                        {
+                            <form asp-action="RemoveModerator" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove Moderator</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Already @string.Join(", ", user.Roles)</span>
+                        }
                     }
                     else
                     {
-                        <span class="text-muted">Already @string.Join(", ", user.Roles)</span>
+                        <span class="text-muted">@string.Join(", ", user.Roles)</span>
                     }
                 </td>
             </tr>
