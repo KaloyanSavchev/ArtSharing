@@ -26,9 +26,7 @@ namespace ArtSharing.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-            {
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
-            }
 
             var followersCount = await _context.UserFollows.CountAsync(f => f.FollowingId == user.Id);
             var followingCount = await _context.UserFollows.CountAsync(f => f.FollowerId == user.Id);
@@ -40,10 +38,8 @@ namespace ArtSharing.Web.Controllers
 
             var likedPosts = await _context.Likes
                 .Where(l => l.UserId == user.Id)
-                .Include(l => l.Post)
-                    .ThenInclude(p => p.User)
-                .Include(l => l.Post)
-                    .ThenInclude(p => p.Category)
+                .Include(l => l.Post).ThenInclude(p => p.User)
+                .Include(l => l.Post).ThenInclude(p => p.Category)
                 .Select(l => l.Post)
                 .ToListAsync();
 
@@ -67,16 +63,13 @@ namespace ArtSharing.Web.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(ProfileViewModel model, IFormFile profileImage)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-            {
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
-            }
 
             if (profileImage != null && profileImage.Length > 0)
             {
@@ -138,20 +131,16 @@ namespace ArtSharing.Web.Controllers
             if (model.ProfileImageFile != null)
             {
                 var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/profiles");
-               
+
                 if (!string.IsNullOrEmpty(user.ProfilePicture))
                 {
                     var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePicture.TrimStart('/'));
                     if (System.IO.File.Exists(oldPath))
-                    {
                         System.IO.File.Delete(oldPath);
-                    }
                 }
 
                 if (!Directory.Exists(uploadDir))
-                {
                     Directory.CreateDirectory(uploadDir);
-                }
 
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ProfileImageFile.FileName);
                 var filePath = Path.Combine(uploadDir, fileName);
@@ -165,7 +154,6 @@ namespace ArtSharing.Web.Controllers
             }
 
             var result = await _userManager.UpdateAsync(user);
-
             if (result.Succeeded)
                 return RedirectToAction("Index");
 
@@ -216,6 +204,8 @@ namespace ArtSharing.Web.Controllers
                 FollowingCount = user.Following.Count,
                 IsFollowing = isFollowing,
                 IsOwnProfile = isOwnProfile,
+                UserId = user.Id,
+                IsBanned = user.IsBanned,
                 UserPosts = userPosts
             };
 
@@ -228,8 +218,7 @@ namespace ArtSharing.Web.Controllers
         public async Task<IActionResult> ToggleFollow(string username)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            var targetUser = await _userManager.Users
-                .FirstOrDefaultAsync(u => u.UserName == username);
+            var targetUser = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == username);
 
             if (targetUser == null || currentUser == null || currentUser.Id == targetUser.Id)
                 return BadRequest();
@@ -238,7 +227,6 @@ namespace ArtSharing.Web.Controllers
                 .FirstOrDefaultAsync(f => f.FollowerId == currentUser.Id && f.FollowingId == targetUser.Id);
 
             bool isFollowing;
-
             if (existingFollow != null)
             {
                 _context.UserFollows.Remove(existingFollow);
@@ -274,20 +262,13 @@ namespace ArtSharing.Web.Controllers
             if (user == null) return Unauthorized();
 
             List<User> users;
-
             if (type == "followers")
             {
-                users = await _context.UserFollows
-                    .Where(f => f.FollowingId == user.Id)
-                    .Select(f => f.Follower)
-                    .ToListAsync();
+                users = await _context.UserFollows.Where(f => f.FollowingId == user.Id).Select(f => f.Follower).ToListAsync();
             }
             else if (type == "following")
             {
-                users = await _context.UserFollows
-                    .Where(f => f.FollowerId == user.Id)
-                    .Select(f => f.Following)
-                    .ToListAsync();
+                users = await _context.UserFollows.Where(f => f.FollowerId == user.Id).Select(f => f.Following).ToListAsync();
             }
             else return BadRequest();
 
@@ -303,17 +284,11 @@ namespace ArtSharing.Web.Controllers
             List<User> users = new();
             if (type == "followers")
             {
-                users = await _context.UserFollows
-                    .Where(f => f.FollowingId == currentUser.Id)
-                    .Select(f => f.Follower)
-                    .ToListAsync();
+                users = await _context.UserFollows.Where(f => f.FollowingId == currentUser.Id).Select(f => f.Follower).ToListAsync();
             }
             else if (type == "following")
             {
-                users = await _context.UserFollows
-                    .Where(f => f.FollowerId == currentUser.Id)
-                    .Select(f => f.Following)
-                    .ToListAsync();
+                users = await _context.UserFollows.Where(f => f.FollowerId == currentUser.Id).Select(f => f.Following).ToListAsync();
             }
 
             var result = users.Select(u => new
@@ -329,16 +304,13 @@ namespace ArtSharing.Web.Controllers
         public async Task<IActionResult> GetUserPostsPartial(string username)
         {
             var user = await _userManager.Users
-                .Include(u => u.Posts)
-                    .ThenInclude(p => p.Category)
-                .Include(u => u.Posts)
-                    .ThenInclude(p => p.Likes)
+                .Include(u => u.Posts).ThenInclude(p => p.Category)
+                .Include(u => u.Posts).ThenInclude(p => p.Likes)
                 .FirstOrDefaultAsync(u => u.UserName == username);
 
             var currentUser = await _userManager.GetUserAsync(User);
 
-            bool isFollowing = await _context.UserFollows.AnyAsync(f =>
-                f.FollowerId == currentUser.Id && f.FollowingId == user.Id);
+            bool isFollowing = await _context.UserFollows.AnyAsync(f => f.FollowerId == currentUser.Id && f.FollowingId == user.Id);
 
             if (user == null || (!isFollowing && user.Id != currentUser.Id))
                 return Unauthorized();

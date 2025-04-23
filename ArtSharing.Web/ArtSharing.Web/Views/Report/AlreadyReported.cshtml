@@ -1,0 +1,12 @@
+﻿@{
+    ViewData["Title"] = "Already Reported";
+}
+
+<div class="text-center mt-5">
+    <h2 class="text-danger">⚠️ This user has already been reported</h2>
+    <p class="mt-3">You have already submitted a report against this user. Each user can only report another user once.</p>
+
+    <a asp-controller="Profile" asp-action="About" asp-route-username="@ViewBag.UserName" class="btn btn-primary mt-4">
+        Back to Profile
+    </a>
+</div>

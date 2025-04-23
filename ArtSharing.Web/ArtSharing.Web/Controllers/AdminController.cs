@@ -7,6 +7,7 @@ namespace ArtSharing.Web.Controllers
 {
     using ArtSharing.Data.Models.Models;
     using ArtSharing.Web.Models;
+    using Microsoft.EntityFrameworkCore;
 
     public class AdminController : Controller
     {
@@ -99,6 +100,7 @@ namespace ArtSharing.Web.Controllers
                     Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
+                    IsBanned = user.IsBanned,
                     Roles = roles.ToList()
                 });
             }
@@ -123,20 +125,129 @@ namespace ArtSharing.Web.Controllers
             return RedirectToAction("ManageModerators");
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> RemoveModerator(string id)
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveModeratorRole(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
-            var roles = await _userManager.GetRolesAsync(user);
-            if (roles.Contains("Moderator"))
+            if (await _userManager.IsInRoleAsync(user, "Moderator"))
             {
                 await _userManager.RemoveFromRoleAsync(user, "Moderator");
             }
 
             return RedirectToAction("ManageModerators");
         }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Reports()
+        {
+            var reports = await _context.Reports
+                .Include(r => r.Reporter)
+                .Include(r => r.TargetUser)
+                .Include(r => r.TargetPost).ThenInclude(p => p.User)
+                .Include(r => r.TargetComment).ThenInclude(c => c.User)
+                .ToListAsync();
+
+            return View(reports);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BanUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            user.IsBanned = true; 
+            await _userManager.UpdateAsync(user);
+
+            
+            var relatedReports = _context.Reports.Where(r => r.TargetUserId == userId);
+            _context.Reports.RemoveRange(relatedReports);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Reports");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BanUserFromList(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            user.IsBanned = true;
+            await _userManager.UpdateAsync(user);
+
+            return RedirectToAction("ManageModerators");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnbanUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            user.IsBanned = false;
+            await _userManager.UpdateAsync(user);
+
+            return RedirectToAction("ManageModerators");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            var post = await _context.Posts.FindAsync(postId);
+            if (post == null) return NotFound();
+
+            _context.Posts.Remove(post);
+
+            var relatedReports = _context.Reports.Where(r => r.TargetPostId == postId);
+            _context.Reports.RemoveRange(relatedReports);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Reports");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteComment(int commentId)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null) return NotFound();
+
+            _context.Comments.Remove(comment);
+
+            var relatedReports = _context.Reports.Where(r => r.TargetCommentId == commentId);
+            _context.Reports.RemoveRange(relatedReports);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Reports");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DismissReport(int reportId)
+        {
+            var report = await _context.Reports.FindAsync(reportId);
+            if (report == null) return NotFound();
+
+            _context.Reports.Remove(report);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Reports");
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<ArtSharing.Web.Models.UserWithRolesViewModel>
+
 @{
     ViewData["Title"] = "Manage Moderators";
 }
@@ -11,7 +12,9 @@
             <th>Username</th>
             <th>Email</th>
             <th>Roles</th>
-            <th>Action</th>
+            <th>Status</th>
+            <th>Promote / Demote</th>
+            <th>Ban / Unban</th>
         </tr>
     </thead>
     <tbody>
@@ -21,31 +24,60 @@
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
                 <td>@string.Join(", ", user.Roles)</td>
+
                 <td>
-                    @if (User.IsInRole("Admin"))
+                    @if (user.IsBanned)
                     {
-                        if (!user.Roles.Contains("Admin") && !user.Roles.Contains("Moderator"))
+                        <span class="badge bg-danger">BANNED</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                </td>
+
+                <td>
+                    @if (user.Roles.Contains("Admin"))
+                    {
+                        <span class="text-muted">Admin</span>
+                    }
+                    else if (user.Roles.Contains("Moderator"))
+                    {
+                        <form asp-action="RemoveModeratorRole" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-sm btn-warning">Remove Moderator</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="PromoteToModerator" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-sm btn-success">Promote to Moderator</button>
+                        </form>
+                    }
+                </td>
+
+                <td>
+                    @if (!user.Roles.Contains("Admin"))
+                    {
+                        @if (user.IsBanned)
                         {
-                            <form asp-action="PromoteToModerator" method="post" class="d-inline">
+                            <form asp-action="UnbanUser" method="post" class="d-inline">
                                 <input type="hidden" name="id" value="@user.Id" />
-                                <button type="submit" class="btn btn-sm btn-success">Promote to Moderator</button>
-                            </form>
-                        }
-                        else if (user.Roles.Contains("Moderator") && !user.Roles.Contains("Admin"))
-                        {
-                            <form asp-action="RemoveModerator" method="post" class="d-inline">
-                                <input type="hidden" name="id" value="@user.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove Moderator</button>
+                                <button type="submit" class="btn btn-sm btn-success">Unban</button>
                             </form>
                         }
                         else
                         {
-                            <span class="text-muted">Already @string.Join(", ", user.Roles)</span>
+                            <form asp-action="BanUserFromList" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Ban</button>
+                            </form>
                         }
                     }
                     else
                     {
-                        <span class="text-muted">@string.Join(", ", user.Roles)</span>
+                        <span class="text-muted">Not allowed</span>
                     }
                 </td>
             </tr>

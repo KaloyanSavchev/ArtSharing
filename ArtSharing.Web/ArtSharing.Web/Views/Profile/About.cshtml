@@ -13,7 +13,13 @@
         </div>
 
         <div class="col-md-9">
-            <h2>@Model.UserName</h2>
+            <h2>
+                @Model.UserName
+                @if (Model.IsBanned)
+                {
+                    <span class="badge bg-danger ms-2">BANNED</span>
+                }
+            </h2>
 
             <p><strong>Email:</strong> @Model.Email</p>
             <p><strong>Phone:</strong> @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</p>
@@ -37,6 +43,9 @@
                         @(Model.IsFollowing ? "Unfollow" : "Follow")
                     </button>
                 </form>
+
+                <a asp-controller="Report" asp-action="UserProfile" asp-route-id="@Model.UserId"
+                   class="btn btn-outline-danger mt-2">Report User</a>
             }
             else
             {

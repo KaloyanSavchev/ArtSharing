@@ -15,6 +15,10 @@
                     <a asp-action="Delete" asp-route-id="@comment.Id" class="btn btn-sm btn-danger">Delete</a>
                 }
 
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a asp-controller="Report" asp-action="Comment" asp-route-id="@comment.Id" class="btn btn-sm btn-outline-danger">Report</a>
+                }
 
                 @if (User.Identity.IsAuthenticated)
                 {

@@ -18,6 +18,7 @@ namespace ArtSharing.Data.Models.Models
 
         public DateTime DateRegistered { get; set; } = DateTime.UtcNow;
 
+        public bool IsBanned { get; set; } = false;
 
         public List<SavedPost> SavedPosts { get; set; } = new List<SavedPost>();
         public ICollection<UserFollow> Followers { get; set; } = new List<UserFollow>(); // Кой следи този потребител

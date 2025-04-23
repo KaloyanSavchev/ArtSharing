@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Report User";
+}
+
+<h2>Report User</h2>
+
+<form asp-controller="Report" asp-action="SubmitUserReport" method="post">
+    <input type="hidden" name="targetUserId" value="@ViewBag.TargetUserId" />
+
+    <div class="form-group">
+        <label for="reasonSelect">Reason for reporting:</label>
+        <select id="reasonSelect" class="form-control" onchange="toggleOtherReason(this)" required>
+            <option value="">-- Select reason --</option>
+            <option value="Harassment or bullying">Harassment or bullying</option>
+            <option value="Inappropriate profile content">Inappropriate profile content</option>
+            <option value="Fake account or impersonation">Fake account or impersonation</option>
+            <option value="Other">Other (type below)</option>
+        </select>
+    </div>
+
+    <div class="form-group mt-2">
+        <label for="reason">Other (or selected reason):</label>
+        <input type="text" name="reason" id="reason" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-danger mt-3">Submit Report</button>
+    <a asp-controller="Profile" asp-action="Index" class="btn btn-secondary mt-3">Cancel</a>
+</form>
+
+@section Scripts {
+    <script>
+        function toggleOtherReason(select) {
+            const input = document.getElementById('reason');
+            if (select.value === 'Other') {
+                input.value = '';
+                input.readOnly = false;
+                input.focus();
+            } else if (select.value !== '') {
+                input.value = select.value;
+                input.readOnly = true;
+            } else {
+                input.value = '';
+                input.readOnly = true;
+            }
+        }
+    </script>
+}
