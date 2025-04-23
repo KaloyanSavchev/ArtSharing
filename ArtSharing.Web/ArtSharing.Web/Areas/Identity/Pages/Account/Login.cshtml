@@ -1,4 +1,10 @@
 ﻿@page
+@if (TempData["BanError"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["BanError"]
+    </div>
+}
 @model LoginModel
 @{
     ViewData["Title"] = "Log in";

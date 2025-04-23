@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Home";
+    var initialLoad = 6;
 }
 
 <h1 class="text-center my-4">🖼️ Art Feed</h1>
@@ -16,9 +17,12 @@
         <div class="col-md-4">
             <select id="categoryFilter" class="form-select">
                 <option value="">All Categories</option>
-                @foreach (var category in ViewBag.Categories as List<Category>)
+                @if (ViewBag.Categories is List<Category> categories)
                 {
-                    <option value="@category.Id">@category.Name</option>
+                    foreach (var category in categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
                 }
             </select>
         </div>
@@ -26,53 +30,40 @@
 
     <!-- Posts Section -->
     <div id="postContainer" class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var post in Model.Take(6))
+        @foreach (var post in Model.Take(initialLoad))
         {
-            <partial name="_PostCardPartial" model="post" />
+            <div class="col">
+                @await Html.PartialAsync("_PostCardPartial", post)
+            </div>
         }
     </div>
 
     <div class="text-center mt-4">
-        <span id="loadingSpinner" class="spinner-border text-primary" style="display: none;"></span>
+        <button id="loadMoreBtn" class="btn btn-outline-primary">Load more</button>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        let loadedCount = 6;
-        let isLoading = false;
-        let allPostsLoaded = false;
+        let skipCount = @initialLoad;
+        const takeCount = 6;
 
         const postContainer = document.getElementById("postContainer");
-        const loadingSpinner = document.getElementById("loadingSpinner");
+        const loadMoreBtn = document.getElementById("loadMoreBtn");
         const searchInput = document.getElementById("searchInput");
         const categoryFilter = document.getElementById("categoryFilter");
 
-        async function loadMorePosts() {
-            if (isLoading || allPostsLoaded) return;
-            isLoading = true;
-            loadingSpinner.style.display = "inline-block";
-
-            const response = await fetch(`/Home/LoadMorePosts?skip=${loadedCount}`);
+        loadMoreBtn.addEventListener("click", async function () {
+            const response = await fetch(`/Home/LoadMorePosts?skip=${skipCount}&take=${takeCount}`);
             const html = await response.text();
 
             if (html.trim()) {
                 postContainer.insertAdjacentHTML("beforeend", html);
-                loadedCount += 6;
+                skipCount += takeCount;
             } else {
-                allPostsLoaded = true;
-                window.removeEventListener("scroll", scrollHandler);
+                loadMoreBtn.style.display = "none";
             }
-
-            loadingSpinner.style.display = "none";
-            isLoading = false;
-        }
-
-        function scrollHandler() {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
-                loadMorePosts();
-            }
-        }
+        });
 
         async function filterPosts() {
             const search = searchInput.value.trim();
@@ -83,12 +74,9 @@
             const html = await response.text();
 
             postContainer.innerHTML = html;
-            allPostsLoaded = true;
-            window.removeEventListener("scroll", scrollHandler);
+            loadMoreBtn.style.display = "none";
         }
 
-        // Attach listeners
-        window.addEventListener("scroll", scrollHandler);
         searchInput.addEventListener("input", debounce(filterPosts, 300));
         categoryFilter.addEventListener("change", filterPosts);
 
@@ -101,3 +89,4 @@
         }
     </script>
 }
+    

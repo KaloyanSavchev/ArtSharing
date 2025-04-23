@@ -82,8 +82,8 @@ namespace Temporary.Areas.Identity.Pages.Account
                
                 if (user.IsBanned)
                 {
-                    ModelState.AddModelError(string.Empty, "Your account has been banned.");
-                    return Page();
+                    TempData["BanError"] = "Your account has been banned.";
+                    return RedirectToPage();
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);

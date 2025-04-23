@@ -17,34 +17,33 @@ namespace ArtSharing.Web.Controllers
             _logger = logger;
         }
 
-        // Начална страница
         public async Task<IActionResult> Index()
         {
             var posts = await _context.Posts
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(6)
                 .Include(p => p.User)
                 .Include(p => p.Category)
-                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
-
-            ViewBag.Categories = await _context.Categories.ToListAsync();
 
             return View(posts);
         }
 
         // Зареждане на още постове при скрол
         [HttpGet]
-        public async Task<IActionResult> LoadMorePosts(int skip)
+        public async Task<IActionResult> LoadMorePosts(int skip = 0, int take = 6)
         {
             var posts = await _context.Posts
-                .Include(p => p.User)
-                .Include(p => p.Category)
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip(skip)
-                .Take(6)
+                .Take(take)
+                .Include(p => p.User)
+                .Include(p => p.Category)
                 .ToListAsync();
 
-            return PartialView("_PostCardListPartial", posts); // трябва да съществува
+            return PartialView("_PostCardListPartial", posts);
         }
+
 
         // Филтриране по категория + търсене
         [HttpGet]
@@ -61,7 +60,7 @@ namespace ArtSharing.Web.Controllers
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
-            return PartialView("_PostCardListPartial", posts); // трябва да съществува
+            return PartialView("_PostCardListPartial", posts); 
         }
 
         // Грешка
