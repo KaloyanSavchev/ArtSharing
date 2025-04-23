@@ -27,8 +27,4 @@
     <ProjectReference Include="..\ArtSharing.Models\ArtSharing.Data.Models.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\images\profiles\" />
-  </ItemGroup>
-
 </Project>
