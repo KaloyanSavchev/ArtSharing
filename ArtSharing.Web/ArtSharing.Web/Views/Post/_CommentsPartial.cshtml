@@ -1,26 +1,22 @@
-﻿
-@model List<ArtSharing.Data.Models.Models.Comment>
+﻿@model List<ArtSharing.Data.Models.Models.Comment>
+@using ArtSharing.Web.Helpers
 
 @foreach (var comment in Model)
 {
     <div class="mb-3" style="margin-left:@(comment.ParentCommentId != null ? "40px" : "0")">
         <div class="border p-3 rounded comment-box">
             <strong>@comment.User.UserName</strong>
-            @using ArtSharing.Web.Helpers
             <p>@ContentFilter.CensorText(comment.Content)</p>
             <small class="text-muted">@comment.CreatedAt.ToShortDateString()</small>
 
             <div class="mt-2">
                 @if (User.Identity.Name == comment.User.UserName || User.IsInRole("Admin") || User.IsInRole("Moderator"))
                 {
-                    <a asp-action="Edit" asp-route-id="@comment.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@comment.Id" class="btn btn-sm btn-danger">Delete</a>
+                    <a asp-controller="Comment" asp-action="Edit" asp-route-id="@comment.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-controller="Comment" asp-action="Delete" asp-route-id="@comment.Id" class="btn btn-sm btn-danger">Delete</a>
                 }
 
-                @if (User.Identity.IsAuthenticated)
-                {
-                    <a asp-controller="Report" asp-action="Comment" asp-route-id="@comment.Id" class="btn btn-sm btn-outline-danger">Report</a>
-                }
+                <a asp-controller="Report" asp-action="Comment" asp-route-id="@comment.Id" class="btn btn-sm btn-outline-danger">Report</a>
 
                 @if (User.Identity.IsAuthenticated)
                 {

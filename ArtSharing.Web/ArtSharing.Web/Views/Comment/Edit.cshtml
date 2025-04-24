@@ -6,7 +6,8 @@
 
 <h3>Edit Comment</h3>
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" asp-controller="Comment" method="post">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="PostId" />
 

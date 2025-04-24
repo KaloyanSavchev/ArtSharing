@@ -54,8 +54,10 @@ namespace ArtSharing.Web.Controllers
 
             var user = await _userManager.GetUserAsync(User);
             var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            var isModerator = await _userManager.IsInRoleAsync(user, "Moderator");
 
-            if (comment.UserId != user.Id && !isAdmin) return Forbid();
+            if (comment.UserId != user.Id && !isAdmin && !isModerator)
+                return Forbid();
 
             return View(comment);
         }
@@ -84,13 +86,17 @@ namespace ArtSharing.Web.Controllers
         {
             var comment = await _context.Comments
                 .Include(c => c.Post)
+                .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.Id == id);
+
             if (comment == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
             var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            var isModerator = await _userManager.IsInRoleAsync(user, "Moderator");
 
-            if (comment.UserId != user.Id && !isAdmin) return Forbid();
+            if (comment.UserId != user.Id && !isAdmin && !isModerator)
+                return Forbid();
 
             return View(comment);
         }
