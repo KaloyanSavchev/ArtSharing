@@ -82,7 +82,7 @@ namespace Temporary.Areas.Identity.Pages.Account
                
                 if (user.IsBanned)
                 {
-                    TempData["BanError"] = "Your account has been banned.";
+                    TempData["BanError"] = "Your account has been banned. Contact us:admin@artsharing.com";
                     return RedirectToPage();
                 }
 
