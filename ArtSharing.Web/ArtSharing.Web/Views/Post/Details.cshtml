@@ -50,4 +50,49 @@ else
     <p><a asp-area="Identity" asp-page="/Account/Login">Log in</a> to comment.</p>
 }
 
-@await Html.PartialAsync("_CommentsPartial", Model.Comments.Where(c => c.ParentCommentId == null).ToList())
+<div id="commentsSection">
+    @await Html.PartialAsync("_CommentsPartial", Model.Comments
+            .Where(c => c.ParentCommentId == null)
+            .OrderBy(c => c.CreatedAt)
+            .Take(3)
+            .ToList())
+</div>
+
+@if (Model.Comments.Count(c => c.ParentCommentId == null) > 3)
+{
+    <div class="text-center mt-3">
+        <button id="loadMoreCommentsBtn" class="btn btn-outline-secondary">Load more comments</button>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        let loadedComments = 3;
+        const postId = @Model.Id;
+
+        document.getElementById("loadMoreCommentsBtn")?.addEventListener("click", async function () {
+            const response = await fetch(`/Post/LoadMoreComments?postId=${postId}&skip=${loadedComments}`);
+            const html = await response.text();
+            document.getElementById("commentsSection").insertAdjacentHTML("beforeend", html);
+            loadedComments += 3;
+
+            if (html.trim() === "") {
+                this.remove();
+            }
+        });
+
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("toggle-replies-btn")) {
+                const id = e.target.getAttribute("data-comment-id");
+                const repliesDiv = document.getElementById(`replies-${id}`);
+                if (repliesDiv.style.display === "none") {
+                    repliesDiv.style.display = "block";
+                    e.target.textContent = "Hide replies";
+                } else {
+                    repliesDiv.style.display = "none";
+                    e.target.textContent = "View replies";
+                }
+            }
+        });
+    </script>
+}

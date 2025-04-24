@@ -201,6 +201,22 @@ namespace ArtSharing.Web.Controllers
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Home");
-        }     
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadMoreComments(int postId, int skip = 0)
+        {
+            var comments = await _context.Comments
+                .Where(c => c.PostId == postId && c.ParentCommentId == null)
+                .Include(c => c.User)
+                .Include(c => c.Replies)
+                    .ThenInclude(r => r.User)
+                .OrderBy(c => c.CreatedAt)
+                .Skip(skip)
+                .Take(3)
+                .ToListAsync();
+
+            return PartialView("_CommentsPartial", comments);
+        }
     }
 }

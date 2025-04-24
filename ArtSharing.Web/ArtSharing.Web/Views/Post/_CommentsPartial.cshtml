@@ -34,7 +34,15 @@
 
         @if (comment.Replies != null && comment.Replies.Count > 0)
         {
-            @await Html.PartialAsync("_CommentsPartial", comment.Replies)
+            <div class="mt-2">
+                <button class="btn btn-sm btn-link toggle-replies-btn" data-comment-id="@comment.Id">
+                    View replies (@comment.Replies.Count)
+                </button>
+
+                <div id="replies-@comment.Id" style="display:none;">
+                    @await Html.PartialAsync("_CommentsPartial", comment.Replies)
+                </div>
+            </div>
         }
     </div>
 }
