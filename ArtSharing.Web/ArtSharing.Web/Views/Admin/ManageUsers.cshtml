@@ -1,0 +1,94 @@
+﻿@model IEnumerable<ArtSharing.Web.Models.UserWithRolesViewModel>
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<h2>Manage Users</h2>
+
+<div class="mb-3">
+    <input type="text" id="userSearchInput" class="form-control" placeholder="Search by email or username..." />
+</div>
+
+<table class="table table-striped" id="usersTable">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr class="user-row">
+                <td class="user-username">
+                    <a asp-controller="Profile" asp-action="About" asp-route-username="@user.UserName">
+                        @user.UserName
+                    </a>
+                </td>
+                <td class="user-email">@user.Email</td>
+                <td>@string.Join(", ", user.Roles)</td>
+                <td>
+                    @if (user.IsBanned)
+                    {
+                        <span class="badge bg-danger">BANNED</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                </td>
+                <td>
+                    @if (!user.Roles.Contains("Admin") && !user.Roles.Contains("Moderator"))
+                    {
+                        <form asp-action="PromoteToModerator" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-sm btn-success">Promote to Moderator</button>
+                        </form>
+                    }
+                    else if (user.Roles.Contains("Moderator"))
+                    {
+                        <form asp-action="RemoveModeratorRole" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-sm btn-warning">Remove Moderator</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Admin</span>
+                    }
+
+                    @if (!user.IsBanned)
+                    {
+                        <form asp-action="BanUserFromList" method="post" class="d-inline ms-2">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">Ban</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="UnbanUser" method="post" class="d-inline ms-2">
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-sm btn-secondary">Unban</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        document.getElementById("userSearchInput").addEventListener("input", function () {
+            const search = this.value.toLowerCase();
+            document.querySelectorAll(".user-row").forEach(row => {
+                const email = row.querySelector(".user-email").textContent.toLowerCase();
+                const username = row.querySelector(".user-username").textContent.toLowerCase();
+                row.style.display = email.includes(search) || username.includes(search) ? "" : "none";
+            });
+        });
+    </script>
+}

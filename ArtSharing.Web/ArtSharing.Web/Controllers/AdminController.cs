@@ -86,7 +86,7 @@ namespace ArtSharing.Web.Controllers
         }
 
         [Authorize(Roles = "Admin,Moderator")]
-        public async Task<IActionResult> ManageModerators()
+        public async Task<IActionResult> ManageUsers()
         {
             var users = _userManager.Users.ToList();
 
@@ -122,7 +122,7 @@ namespace ArtSharing.Web.Controllers
                 await _userManager.AddToRoleAsync(user, "Moderator");
             }
 
-            return RedirectToAction("ManageModerators");
+            return RedirectToAction("ManageUsers");
         }
 
         [HttpPost]
@@ -138,7 +138,7 @@ namespace ArtSharing.Web.Controllers
                 await _userManager.RemoveFromRoleAsync(user, "Moderator");
             }
 
-            return RedirectToAction("ManageModerators");
+            return RedirectToAction("ManageUsers");
         }
 
         [Authorize(Roles = "Admin")]
@@ -184,7 +184,7 @@ namespace ArtSharing.Web.Controllers
             user.IsBanned = true;
             await _userManager.UpdateAsync(user);
 
-            return RedirectToAction("ManageModerators");
+            return RedirectToAction("ManageUsers");
         }
 
         [HttpPost]
@@ -198,7 +198,7 @@ namespace ArtSharing.Web.Controllers
             user.IsBanned = false;
             await _userManager.UpdateAsync(user);
 
-            return RedirectToAction("ManageModerators");
+            return RedirectToAction("ManageUsers");
         }
 
         [HttpPost]
