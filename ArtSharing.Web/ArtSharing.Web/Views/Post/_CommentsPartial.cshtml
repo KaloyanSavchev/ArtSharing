@@ -1,11 +1,13 @@
-﻿@model List<ArtSharing.Data.Models.Models.Comment>
+﻿
+@model List<ArtSharing.Data.Models.Models.Comment>
 
 @foreach (var comment in Model)
 {
     <div class="mb-3" style="margin-left:@(comment.ParentCommentId != null ? "40px" : "0")">
         <div class="border p-3 rounded comment-box">
             <strong>@comment.User.UserName</strong>
-            <p>@comment.Content</p>
+            @using ArtSharing.Web.Helpers
+            <p>@ContentFilter.CensorText(comment.Content)</p>
             <small class="text-muted">@comment.CreatedAt.ToShortDateString()</small>
 
             <div class="mt-2">

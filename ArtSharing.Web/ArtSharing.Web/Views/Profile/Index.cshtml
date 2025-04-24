@@ -1,4 +1,5 @@
-﻿@model ArtSharing.Web.Models.ProfileViewModel
+﻿@using ArtSharing.Web.Helpers
+@model ArtSharing.Web.Models.ProfileViewModel
 
 @{
     ViewData["Title"] = "My Profile";
@@ -14,12 +15,12 @@
         </div>
 
         <div class="col-md-9">
-            <h2>@Model.UserName</h2>
+            <h2>@ContentFilter.CensorText(Model.UserName)</h2>
             <p><strong>Email:</strong> @Model.Email</p>
             <p><strong>Phone:</strong> @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</p>
             @if (!string.IsNullOrWhiteSpace(Model.ProfileDescription))
             {
-                <p><strong>Description:</strong> @Model.ProfileDescription</p>
+                <p><strong>About:</strong> @ContentFilter.CensorText(Model.ProfileDescription)</p>
             }
             <p><strong>Member since:</strong> @Model.DateRegistered.ToShortDateString()</p>
 

@@ -1,4 +1,5 @@
-﻿@model ArtSharing.Data.Models.Models.Post
+﻿@using ArtSharing.Web.Helpers
+@model ArtSharing.Data.Models.Models.Post
 
 <div class="col">
     <div class="card h-100 shadow-sm" data-category-id="@Model.CategoryId">
@@ -7,8 +8,8 @@
             <img src="@Model.ImagePath" alt="@Model.Title" class="main-image" />
         </div>
         <div class="card-body">
-            <h5 class="card-title">@Model.Title</h5>
-            <p class="card-text">@Model.Description</p>
+            <h5 class="card-title">@ContentFilter.CensorText(Model.Title)</h5>
+            <p class="card-text">@ContentFilter.CensorText(Model.Description)</p>
             <a asp-controller="Post" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
         </div>
         <div class="card-footer text-muted">

@@ -1,4 +1,5 @@
-﻿@model ArtSharing.Web.Models.ProfileViewModel
+﻿@using ArtSharing.Web.Helpers
+@model ArtSharing.Web.Models.ProfileViewModel
 
 @{
     ViewData["Title"] = $"{Model.UserName}'s Profile";
@@ -14,7 +15,7 @@
 
         <div class="col-md-9">
             <h2>
-                @Model.UserName
+                @ContentFilter.CensorText(Model.UserName)
                 @if (Model.IsBanned)
                 {
                     <span class="badge bg-danger ms-2">BANNED</span>
@@ -27,7 +28,7 @@
 
             @if (!string.IsNullOrWhiteSpace(Model.ProfileDescription))
             {
-                <p><strong>About:</strong> @Model.ProfileDescription</p>
+                <p><strong>About:</strong> @ContentFilter.CensorText(Model.ProfileDescription)</p>
             }
 
             <div class="mb-3">
