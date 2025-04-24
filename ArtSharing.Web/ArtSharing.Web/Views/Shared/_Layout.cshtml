@@ -60,7 +60,18 @@
                                     <li><a class="dropdown-item" asp-controller="Admin" asp-action="ManageUsers">Manage Users</a></li>
                                     <li><a class="dropdown-item" asp-controller="Admin" asp-action="ManageCategories">Manage Categories</a></li>
                                     <li><a asp-controller="Admin" asp-action="Reports" class="dropdown-item">Manage Reports</a></li>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="AdminFeedback" asp-action="Index">View Feedback</a></li>
+                                    }
+
                                 </ul>
+                            </li>
+                        }
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Feedback" asp-action="Create">Feedback</a>
                             </li>
                         }
                     </ul>
