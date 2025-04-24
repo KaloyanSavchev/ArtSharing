@@ -53,5 +53,21 @@ namespace ArtSharing.Web.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        [Authorize(Roles = "Admin,Moderator")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearResolved()
+        {
+            var resolvedFeedbacks = await _context.Feedbacks
+                .Where(f => f.Status == "Resolved")
+                .ToListAsync();
+
+            _context.Feedbacks.RemoveRange(resolvedFeedbacks);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+
     }
 }

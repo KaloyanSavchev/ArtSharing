@@ -1,17 +1,24 @@
 ﻿@model List<ArtSharing.Data.Models.Models.Feedback>
 
-    @{
-        ViewData["Title"] = "User Feedback";
-    }
+@{
+    ViewData["Title"] = "User Feedback";
+}
 
-    <h2>User Feedback</h2>
+<h2>User Feedback</h2>
 
-    @if (!Model.Any())
-    {
+@if (!Model.Any())
+{
         <p class="text-muted">No feedback submissions yet.</p>
-    }
-    else
-    {
+}
+else
+{
+        <form asp-action="ClearResolved" method="post" class="mb-3" onsubmit="return confirm('Are you sure you want to delete all resolved feedbacks?');">
+        @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+                🧹 Clear Resolved
+            </button>
+        </form>
+
         <table class="table table-bordered table-striped">
             <thead class="table-light">
                 <tr>
@@ -25,38 +32,38 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var feedback in Model)
-                {
-                    <tr>
-                        <td>
-                            <a asp-controller="Profile" asp-action="About" asp-route-username="@feedback.User.UserName">
-                                @feedback.User.UserName
-                            </a>
-                        </td>
-                        <td>@feedback.Type</td>
-                        <td>@feedback.Subject</td>
-                        <td>@feedback.Message</td>
-                        <td>@feedback.SubmittedAt.ToLocalTime().ToString("g")</td>
-                        <td>
-                            <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@feedback.Id" />
-                                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                                    <option value="Open" selected="@(feedback.Status == "Open")">Open</option>
-                                    <option value="In Progress" selected="@(feedback.Status == "In Progress")">In Progress</option>
-                                    <option value="Resolved" selected="@(feedback.Status == "Resolved")">Resolved</option>
-                                </select>
-                            </form>
-                        </td>
-                        <td>
-                            <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure?');">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@feedback.Id" />
-                                <button class="btn btn-sm btn-danger">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
+            @foreach (var feedback in Model)
+            {
+                        <tr>
+                            <td>
+                                <a asp-controller="Profile" asp-action="About" asp-route-username="@feedback.User.UserName">
+                            @feedback.User.UserName
+                                </a>
+                            </td>
+                            <td>@feedback.Type</td>
+                            <td>@feedback.Subject</td>
+                            <td>@feedback.Message</td>
+                            <td>@feedback.SubmittedAt.ToLocalTime().ToString("g")</td>
+                            <td>
+                                <form asp-action="UpdateStatus" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@feedback.Id" />
+                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="Open" selected="@(feedback.Status == "Open")">Open</option>
+                                        <option value="In Progress" selected="@(feedback.Status == "In Progress")">In Progress</option>
+                                        <option value="Resolved" selected="@(feedback.Status == "Resolved")">Resolved</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
+                                <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure?');">
+                            @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@feedback.Id" />
+                                    <button class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+            }
             </tbody>
         </table>
-    }
+}
