@@ -147,17 +147,36 @@ namespace ArtSharing.Services.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeletePostAsync(int postId)
+        public async Task<bool> DeletePostAsync(int postId)
         {
-            var post = await _context.Posts.FindAsync(postId);
-            if (post == null) return;
+            var post = await _context.Posts
+                .Include(p => p.Likes)
+                .Include(p => p.Comments)
+                .FirstOrDefaultAsync(p => p.Id == postId);
 
-            _context.Posts.Remove(post);
+            if (post == null)
+                return false;
 
-            var reports = _context.Reports.Where(r => r.TargetPostId == postId);
+            var reports = await _context.Reports
+                .Where(r => r.TargetPostId == postId)
+                .ToListAsync();
             _context.Reports.RemoveRange(reports);
 
+            var commentIds = post.Comments.Select(c => c.Id).ToList();
+            if (commentIds.Any())
+            {
+                var commentReports = await _context.Reports
+                    .Where(r => r.TargetCommentId != null && commentIds.Contains(r.TargetCommentId.Value))
+                    .ToListAsync();
+                _context.Reports.RemoveRange(commentReports);
+            }
+
+            _context.Likes.RemoveRange(post.Likes);
+            _context.Comments.RemoveRange(post.Comments);
+            _context.Posts.Remove(post);
+
             await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task DeleteCommentAsync(int commentId)

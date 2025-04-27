@@ -14,22 +14,28 @@ namespace ArtSharing.Services.Services
             _context = context;
         }
 
-        public async Task<bool> CheckIfPostAlreadyReportedAsync(string userId, int postId)
+        public async Task<bool> HasAlreadyReportedPostAsync(string userId, int postId)
         {
-            return await _context.Reports
-                .AnyAsync(r => r.ReporterId == userId && r.TargetPostId == postId && r.TargetType == "Post");
+            return await _context.Reports.AnyAsync(r =>
+                r.ReporterId == userId &&
+                r.TargetPostId == postId &&
+                r.TargetType == "Post");
         }
 
-        public async Task<bool> CheckIfCommentAlreadyReportedAsync(string userId, int commentId)
+        public async Task<bool> HasAlreadyReportedCommentAsync(string userId, int commentId)
         {
-            return await _context.Reports
-                .AnyAsync(r => r.ReporterId == userId && r.TargetCommentId == commentId && r.TargetType == "Comment");
+            return await _context.Reports.AnyAsync(r =>
+                r.ReporterId == userId &&
+                r.TargetCommentId == commentId &&
+                r.TargetType == "Comment");
         }
 
-        public async Task<bool> CheckIfUserAlreadyReportedAsync(string reporterId, string reportedUserId)
+        public async Task<bool> HasAlreadyReportedUserAsync(string userId, string targetUserId)
         {
-            return await _context.Reports
-                .AnyAsync(r => r.ReporterId == reporterId && r.TargetUserId == reportedUserId && r.TargetType == "User");
+            return await _context.Reports.AnyAsync(r =>
+                r.ReporterId == userId &&
+                r.TargetUserId == targetUserId &&
+                r.TargetType == "User");
         }
 
         public async Task ReportPostAsync(string userId, int postId, string reason)
@@ -60,12 +66,12 @@ namespace ArtSharing.Services.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task ReportUserAsync(string reporterId, string reportedUserId, string reason)
+        public async Task ReportUserAsync(string reporterId, string targetUserId, string reason)
         {
             var report = new Report
             {
                 ReporterId = reporterId,
-                TargetUserId = reportedUserId,
+                TargetUserId = targetUserId,
                 TargetType = "User",
                 Reason = reason
             };

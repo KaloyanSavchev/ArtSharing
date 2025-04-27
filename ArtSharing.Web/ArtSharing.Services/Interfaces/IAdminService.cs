@@ -20,7 +20,7 @@ namespace ArtSharing.Services.Interfaces
         Task BanUserFromListAsync(string id);
         Task UnbanUserAsync(string id);
 
-        Task DeletePostAsync(int postId);
+        Task<bool> DeletePostAsync(int postId);
         Task DeleteCommentAsync(int commentId);
         Task DismissReportAsync(int reportId);
     }

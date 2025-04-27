@@ -31,7 +31,7 @@ namespace ArtSharing.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
-            var alreadyReported = await _reportService.CheckIfPostAlreadyReportedAsync(user.Id, postId);
+            var alreadyReported = await _reportService.HasAlreadyReportedPostAsync(user.Id, postId);
             if (alreadyReported)
             {
                 ViewBag.PostId = postId;
@@ -57,7 +57,7 @@ namespace ArtSharing.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
-            var alreadyReported = await _reportService.CheckIfCommentAlreadyReportedAsync(user.Id, commentId);
+            var alreadyReported = await _reportService.HasAlreadyReportedCommentAsync(user.Id, commentId);
             if (alreadyReported)
             {
                 ViewBag.CommentId = commentId;
@@ -84,7 +84,7 @@ namespace ArtSharing.Web.Controllers
             if (currentUser == null || string.IsNullOrEmpty(targetUserId))
                 return Unauthorized();
 
-            var alreadyReported = await _reportService.CheckIfUserAlreadyReportedAsync(currentUser.Id, targetUserId);
+            var alreadyReported = await _reportService.HasAlreadyReportedUserAsync(currentUser.Id, targetUserId);
             if (alreadyReported)
             {
                 ViewBag.TargetUserId = targetUserId;
