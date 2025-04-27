@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ArtSharing.Data\ArtSharing.Data.csproj" />
     <ProjectReference Include="..\ArtSharing.Models\ArtSharing.Data.Models.csproj" />
+    <ProjectReference Include="..\ArtSharing.Services\ArtSharing.Services.csproj" />
   </ItemGroup>
 
 </Project>

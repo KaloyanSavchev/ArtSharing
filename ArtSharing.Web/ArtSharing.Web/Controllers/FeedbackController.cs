@@ -1,6 +1,5 @@
-﻿using ArtSharing.Data.Models.Models;
-using ArtSharing.Data;
-using ArtSharing.Web.Models;
+﻿using ArtSharing.Services.Interfaces;
+using ArtSharing.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +9,12 @@ namespace ArtSharing.Web.Controllers
     [Authorize]
     public class FeedbackController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly IFeedbackService _feedbackService;
+        private readonly UserManager<ArtSharing.Data.Models.Models.User> _userManager;
 
-        public FeedbackController(ApplicationDbContext context, UserManager<User> userManager)
+        public FeedbackController(IFeedbackService feedbackService, UserManager<ArtSharing.Data.Models.Models.User> userManager)
         {
-            _context = context;
+            _feedbackService = feedbackService;
             _userManager = userManager;
         }
 
@@ -32,17 +31,9 @@ namespace ArtSharing.Web.Controllers
                 return View(model);
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
 
-            var feedback = new Feedback
-            {
-                Subject = model.Subject,
-                Message = model.Message,
-                Type = model.Type,
-                UserId = user.Id
-            };
-
-            _context.Feedbacks.Add(feedback);
-            await _context.SaveChangesAsync();
+            await _feedbackService.SubmitFeedbackAsync(model, user.Id);
 
             TempData["Success"] = "Thank you for your feedback!";
             return RedirectToAction("Create");

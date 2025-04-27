@@ -1,5 +1,7 @@
 ﻿using ArtSharing.Data;
 using ArtSharing.Data.Models.Models;
+using ArtSharing.Services.Interfaces;
+using ArtSharing.Services.Services;
 using ArtSharing.Web.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -25,6 +27,17 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
 });
 
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IAdminFeedbackService, AdminFeedbackService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IFollowService, FollowService>();
+builder.Services.AddScoped<ILikeService, LikeService>();
+builder.Services.AddScoped<IPostHomeService, PostHomeService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddTransient<IEmailSender, ArtSharing.Web.Service.FakeEmailSender>();

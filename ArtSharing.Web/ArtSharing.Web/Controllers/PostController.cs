@@ -1,29 +1,28 @@
-﻿using ArtSharing.Data;
-using ArtSharing.Data.Models.Models;
-using ArtSharing.Web.Models;
+﻿using ArtSharing.Services.Interfaces;
+using ArtSharing.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace ArtSharing.Web.Controllers
 {
     public class PostController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly IPostService _postService;
+        private readonly UserManager<ArtSharing.Data.Models.Models.User> _userManager;
 
-        public PostController(ApplicationDbContext context, UserManager<User> userManager)
+        public PostController(IPostService postService, UserManager<ArtSharing.Data.Models.Models.User> userManager)
         {
-            _context = context;
+            _postService = postService;
             _userManager = userManager;
         }
 
         [Authorize]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name");
+            var categories = await _postService.GetAllCategoriesAsync();
+            ViewBag.CategoryId = new SelectList(categories, "Id", "Name");
             return View();
         }
 
@@ -32,39 +31,22 @@ namespace ArtSharing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PostCreateViewModel model)
         {
+            if (model.ImageFile == null)
+            {
+                ModelState.AddModelError("ImageFile", "You must upload an image.");
+            }
+
             if (!ModelState.IsValid)
             {
-                ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
+                var categories = await _postService.GetAllCategoriesAsync();
+                ViewBag.CategoryId = new SelectList(categories, "Id", "Name", model.CategoryId);
                 return View(model);
             }
 
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            if (user == null) return Unauthorized();
 
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await model.ImageFile.CopyToAsync(stream);
-            }
-
-            var post = new Post
-            {
-                Title = model.Title,
-                Description = model.Description,
-                CategoryId = model.CategoryId,
-                ImagePath = "/images/" + fileName,
-                UserId = user.Id,
-                CreatedAt = DateTime.UtcNow
-            }; 
-
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
-
+            await _postService.CreatePostAsync(model, user.Id);
             return RedirectToAction("Index", "Home");
         }
 
@@ -73,149 +55,78 @@ namespace ArtSharing.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var post = await _context.Posts
-                .Include(p => p.User)
-                .Include(p => p.Category)
-                .Include(p => p.Likes)
-            .ThenInclude(l => l.User)
-                .Include(p => p.Comments)
-                    .ThenInclude(c => c.User)
-                .Include(p => p.Comments)
-                    .ThenInclude(c => c.Replies)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
+            var post = await _postService.GetPostDetailsAsync(id.Value);
             if (post == null) return NotFound();
 
-            // Извличаме само root comments
-            var rootComments = post.Comments
-                .Where(c => c.ParentCommentId == null)
-                .ToList();
-
-            ViewBag.Comments = rootComments;
+            ViewBag.Comments = post.Comments.Where(c => c.ParentCommentId == null).ToList();
             return View(post);
         }
 
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-                return NotFound();
-
-            var post = await _context.Posts.FindAsync(id);
-            if (post == null)
-                return NotFound();
+            if (id == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (user == null) return Unauthorized();
 
-            if (post.UserId != user.Id && !isAdmin)
-                return Forbid();
+            var model = await _postService.GetPostForEditAsync(id.Value, user.Id);
+            if (model == null) return Forbid();
 
-            var viewModel = new EditPostViewModel
-            {
-                Id = post.Id,
-                Title = post.Title,
-                Description = post.Description,
-                CategoryId = post.CategoryId,
-                CreatedAt = post.CreatedAt,
-                UserId = post.UserId,
-                ImagePath = post.ImagePath
-            };
+            var categories = await _postService.GetAllCategoriesAsync();
+            ViewBag.CategoryId = new SelectList(categories, "Id", "Name", model.CategoryId);
 
-            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", post.CategoryId);
-            return View(viewModel);
+            return View(model);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, EditPostViewModel model)
         {
-            if (id != model.Id)
-                return NotFound();
+            if (id != model.Id) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (user == null) return Unauthorized();
 
-            var post = await _context.Posts.FindAsync(id);
-            if (post == null)
-                return NotFound();
+            var success = await _postService.UpdatePostAsync(id, model, user.Id);
+            if (!success) return Forbid();
 
-            if (post.UserId != user.Id && !isAdmin)
-                return Forbid();
-
-            if (ModelState.IsValid)
-            {
-                post.Title = model.Title;
-                post.Description = model.Description;
-                post.CategoryId = model.CategoryId;
-
-                _context.Update(post);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Index", "Home");
-            }
-
-            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
-            return View(model);
+            return RedirectToAction("Index", "Home");
         }
 
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-                return NotFound();
-
-            var post = await _context.Posts
-                .Include(p => p.User)
-                .Include(p => p.Category)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (post == null)
-                return NotFound();
+            if (id == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (user == null) return Unauthorized();
 
-            if (post.UserId != user.Id && !isAdmin)
-                return Forbid();
+            var post = await _postService.GetPostForDeleteAsync(id.Value, user.Id);
+            if (post == null) return Forbid();
 
             return View(post);
         }
 
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var post = await _context.Posts.FindAsync(id);
             var user = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (user == null) return Unauthorized();
 
-            if (post == null)
-                return NotFound();
+            var success = await _postService.DeletePostConfirmedAsync(id, user.Id);
+            if (!success) return Forbid();
 
-            if (post.UserId != user.Id && !isAdmin)
-                return Forbid();
-
-            _context.Posts.Remove(post);
-            await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
         public async Task<IActionResult> LoadMoreComments(int postId, int skip = 0)
         {
-            var comments = await _context.Comments
-                .Where(c => c.PostId == postId && c.ParentCommentId == null)
-                .Include(c => c.User)
-                .Include(c => c.Replies)
-                    .ThenInclude(r => r.User)
-                .OrderBy(c => c.CreatedAt)
-                .Skip(skip)
-                .Take(3)
-                .ToListAsync();
-
+            var comments = await _postService.LoadMoreCommentsAsync(postId, skip);
             return PartialView("_CommentsPartial", comments);
         }
     }

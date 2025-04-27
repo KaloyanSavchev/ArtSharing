@@ -1,21 +1,19 @@
-﻿using ArtSharing.Data;
-using ArtSharing.Data.Models.Models;
+﻿using ArtSharing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ArtSharing.Web.Controllers
 {
     [Authorize]
     public class FollowController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly IFollowService _followService;
+        private readonly UserManager<ArtSharing.Data.Models.Models.User> _userManager;
 
-        public FollowController(ApplicationDbContext context, UserManager<User> userManager)
+        public FollowController(IFollowService followService, UserManager<ArtSharing.Data.Models.Models.User> userManager)
         {
-            _context = context;
+            _followService = followService;
             _userManager = userManager;
         }
 
@@ -23,27 +21,11 @@ namespace ArtSharing.Web.Controllers
         public async Task<IActionResult> ToggleFollow(string userId)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null || currentUser.Id == userId)
-                return BadRequest(); // Не може да следва себе си или не е логнат
+            if (currentUser == null) return Unauthorized();
 
-            var existingFollow = await _context.UserFollows
-                .FirstOrDefaultAsync(f => f.FollowerId == currentUser.Id && f.FollowingId == userId);
+            var success = await _followService.ToggleFollowAsync(currentUser.Id, userId);
+            if (!success) return BadRequest();
 
-            if (existingFollow != null)
-            {
-                _context.UserFollows.Remove(existingFollow);
-            }
-            else
-            {
-                var follow = new UserFollow
-                {
-                    FollowerId = currentUser.Id,
-                    FollowingId = userId
-                };
-                _context.UserFollows.Add(follow);
-            }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction("About", "Profile", new { id = userId });
         }
     }

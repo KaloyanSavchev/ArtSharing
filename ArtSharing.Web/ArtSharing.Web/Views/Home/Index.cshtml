@@ -3,7 +3,6 @@
 
 @{
     ViewData["Title"] = "Home";
-    var initialLoad = 6;
 }
 
 <h1 class="text-center my-4">🖼️ Art Feed</h1>
@@ -30,7 +29,7 @@
 
     <!-- Posts Section -->
     <div id="postContainer" class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var post in Model.Take(initialLoad))
+        @foreach (var post in Model)
         {
             <div class="col">
                 @await Html.PartialAsync("_PostCardPartial", post)
@@ -45,7 +44,7 @@
 
 @section Scripts {
     <script>
-        let skipCount = @initialLoad;
+        let skipCount = @Model.Count;
         const takeCount = 6;
 
         const postContainer = document.getElementById("postContainer");
@@ -89,4 +88,3 @@
         }
     </script>
 }
-    

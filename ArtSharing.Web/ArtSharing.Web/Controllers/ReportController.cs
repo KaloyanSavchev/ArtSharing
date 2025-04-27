@@ -1,21 +1,20 @@
-﻿using ArtSharing.Data;
-using ArtSharing.Data.Models.Models;
+﻿using ArtSharing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+using ArtSharing.Data.Models.Models;
 
 namespace ArtSharing.Web.Controllers
 {
     [Authorize]
     public class ReportController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IReportService _reportService;
         private readonly UserManager<User> _userManager;
 
-        public ReportController(ApplicationDbContext context, UserManager<User> userManager)
+        public ReportController(IReportService reportService, UserManager<User> userManager)
         {
-            _context = context;
+            _reportService = reportService;
             _userManager = userManager;
         }
 
@@ -24,34 +23,22 @@ namespace ArtSharing.Web.Controllers
             ViewBag.PostId = id;
             return View();
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitPostReport(int postId, string reason)
         {
             var user = await _userManager.GetUserAsync(User);
-           
-            var existing = _context.Reports.FirstOrDefault(r =>
-                r.ReporterId == user.Id &&
-                r.TargetPostId == postId &&
-                r.TargetType == "Post");
+            if (user == null) return Unauthorized();
 
-            if (existing != null)
+            var alreadyReported = await _reportService.CheckIfPostAlreadyReportedAsync(user.Id, postId);
+            if (alreadyReported)
             {
                 ViewBag.PostId = postId;
                 return View("AlreadyReportedPost");
             }
 
-            var report = new Report
-            {
-                ReporterId = user.Id,
-                TargetPostId = postId,
-                TargetType = "Post",
-                Reason = reason
-            };
-
-            _context.Reports.Add(report);
-            await _context.SaveChangesAsync();
+            await _reportService.ReportPostAsync(user.Id, postId, reason);
 
             TempData["Message"] = "Post reported successfully.";
             return RedirectToAction("Details", "Post", new { id = postId });
@@ -62,33 +49,22 @@ namespace ArtSharing.Web.Controllers
             ViewBag.CommentId = id;
             return View();
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitCommentReport(int commentId, string reason)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
 
-            var existing = _context.Reports.FirstOrDefault(r =>
-                r.ReporterId == user.Id &&
-                r.TargetCommentId == commentId &&
-                r.TargetType == "Comment");
-
-            if (existing != null)
+            var alreadyReported = await _reportService.CheckIfCommentAlreadyReportedAsync(user.Id, commentId);
+            if (alreadyReported)
             {
+                ViewBag.CommentId = commentId;
                 return View("AlreadyReportedComment");
             }
 
-            var report = new Report
-            {
-                ReporterId = user.Id,
-                TargetCommentId = commentId,
-                TargetType = "Comment",
-                Reason = reason
-            };
-
-            _context.Reports.Add(report);
-            await _context.SaveChangesAsync();
+            await _reportService.ReportCommentAsync(user.Id, commentId, reason);
 
             TempData["Message"] = "Comment reported successfully.";
             return RedirectToAction("Index", "Home");
@@ -108,34 +84,17 @@ namespace ArtSharing.Web.Controllers
             if (currentUser == null || string.IsNullOrEmpty(targetUserId))
                 return Unauthorized();
 
-            var reportedUser = await _userManager.FindByIdAsync(targetUserId);
-            if (reportedUser == null)
-                return NotFound();
-
-            var existing = _context.Reports.FirstOrDefault(r =>
-                r.ReporterId == currentUser.Id &&
-                r.TargetUserId == targetUserId &&
-                r.TargetType == "User");
-
-            if (existing != null)
+            var alreadyReported = await _reportService.CheckIfUserAlreadyReportedAsync(currentUser.Id, targetUserId);
+            if (alreadyReported)
             {
-                ViewBag.UserName = reportedUser.UserName;
+                ViewBag.TargetUserId = targetUserId;
                 return View("AlreadyReported");
             }
-            
-            var report = new Report
-            {
-                ReporterId = currentUser.Id,
-                TargetUserId = targetUserId,
-                TargetType = "User",
-                Reason = reason
-            };
 
-            _context.Reports.Add(report);
-            await _context.SaveChangesAsync();
+            await _reportService.ReportUserAsync(currentUser.Id, targetUserId, reason);
 
             TempData["Message"] = "User reported successfully.";
-            return RedirectToAction("About", "Profile", new { username = reportedUser.UserName });
+            return RedirectToAction("About", "Profile", new { username = (await _userManager.FindByIdAsync(targetUserId))?.UserName });
         }
     }
 }

@@ -1,22 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ArtSharing.Data;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using ArtSharing.Services.Interfaces;
 
 namespace ArtSharing.Web.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICategoryService _categoryService;
 
-        public CategoryController(ApplicationDbContext context)
+        public CategoryController(ICategoryService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
 
         public async Task<IActionResult> All()
         {
-            var categories = await _context.Categories.ToListAsync();
+            var categories = await _categoryService.GetAllCategoriesAsync();
             return View(categories);
         }
     }

@@ -1,73 +1,51 @@
-﻿using ArtSharing.Data;
+﻿using ArtSharing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ArtSharing.Web.Controllers
 {
     [Authorize(Roles = "Admin,Moderator")]
     public class AdminFeedbackController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IAdminFeedbackService _feedbackService;
 
-        public AdminFeedbackController(ApplicationDbContext context)
+        public AdminFeedbackController(IAdminFeedbackService feedbackService)
         {
-            _context = context;
+            _feedbackService = feedbackService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var feedbacks = await _context.Feedbacks
-                .Include(f => f.User)
-                .OrderByDescending(f => f.SubmittedAt)
-                .ToListAsync();
-
+            var feedbacks = await _feedbackService.GetAllFeedbacksAsync();
             return View(feedbacks);
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Moderator")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus(int id, string status)
         {
-            var feedback = await _context.Feedbacks.FindAsync(id);
-            if (feedback == null) return NotFound();
+            var success = await _feedbackService.UpdateStatusAsync(id, status);
+            if (!success) return NotFound();
 
-            feedback.Status = status;
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Moderator")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var feedback = await _context.Feedbacks.FindAsync(id);
-            if (feedback == null) return NotFound();
+            var success = await _feedbackService.DeleteFeedbackAsync(id);
+            if (!success) return NotFound();
 
-            _context.Feedbacks.Remove(feedback);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Moderator")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearResolved()
         {
-            var resolvedFeedbacks = await _context.Feedbacks
-                .Where(f => f.Status == "Resolved")
-                .ToListAsync();
-
-            _context.Feedbacks.RemoveRange(resolvedFeedbacks);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index");
+            await _feedbackService.ClearResolvedFeedbacksAsync();
+            return RedirectToAction(nameof(Index));
         }
-
-
     }
 }

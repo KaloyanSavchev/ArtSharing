@@ -1,58 +1,49 @@
-﻿using ArtSharing.Data;
-using ArtSharing.Data.Models.Models;
+﻿using ArtSharing.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ArtSharing.Web.Controllers
 {
     [Authorize]
     public class CommentController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly ICommentService _commentService;
+        private readonly UserManager<ArtSharing.Data.Models.Models.User> _userManager;
 
-        public CommentController(ApplicationDbContext context, UserManager<User> userManager)
+        public CommentController(ICommentService commentService, UserManager<ArtSharing.Data.Models.Models.User> userManager)
         {
-            _context = context;
+            _commentService = commentService;
             _userManager = userManager;
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int PostId, string Content, int? ParentCommentId)
+        public async Task<IActionResult> Create(int postId, string content, int? parentCommentId)
         {
-            if (string.IsNullOrWhiteSpace(Content))
+            if (string.IsNullOrWhiteSpace(content))
             {
                 TempData["Error"] = "Comment cannot be empty.";
-                return RedirectToAction("Details", "Post", new { id = PostId });
+                return RedirectToAction("Details", "Post", new { id = postId });
             }
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
 
-            var comment = new Comment
-            {
-                Content = Content,
-                PostId = PostId,
-                ParentCommentId = ParentCommentId,
-                CreatedAt = DateTime.UtcNow,
-                UserId = user.Id
-            };
+            await _commentService.CreateCommentAsync(postId, content, user.Id, parentCommentId);
 
-            _context.Comments.Add(comment);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Details", "Post", new { id = PostId });
+            return RedirectToAction("Details", "Post", new { id = postId });
         }
 
         [Authorize]
         public async Task<IActionResult> Edit(int id)
         {
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await _commentService.GetCommentByIdAsync(id);
             if (comment == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
             var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
             var isModerator = await _userManager.IsInRoleAsync(user, "Moderator");
 
@@ -65,30 +56,36 @@ namespace ArtSharing.Web.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Comment updatedComment)
+        public async Task<IActionResult> Edit(int id, string content)
         {
-            if (id != updatedComment.Id) return NotFound();
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                TempData["Error"] = "Content cannot be empty.";
+                return RedirectToAction("Edit", new { id });
+            }
 
-            var comment = await _context.Comments.FindAsync(id);
             var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var comment = await _commentService.GetCommentByIdAsync(id);
+            if (comment == null) return NotFound();
+
             var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            var isModerator = await _userManager.IsInRoleAsync(user, "Moderator");
 
-            if (comment == null || (comment.UserId != user.Id && !isAdmin)) return Forbid();
+            if (comment.UserId != user.Id && !isAdmin && !isModerator)
+                return Forbid();
 
-            comment.Content = updatedComment.Content;
-            await _context.SaveChangesAsync();
+            var success = await _commentService.UpdateCommentAsync(id, content, user.Id);
+            if (!success) return Forbid();
 
             return RedirectToAction("Details", "Post", new { id = comment.PostId });
         }
 
-        [Authorize]
+
         public async Task<IActionResult> Delete(int id)
         {
-            var comment = await _context.Comments
-                .Include(c => c.Post)
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
+            var comment = await _commentService.GetCommentByIdAsync(id);
             if (comment == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
@@ -106,24 +103,24 @@ namespace ArtSharing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var comment = await _context.Comments
-                .Include(c => c.Replies)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
 
+            var comment = await _commentService.GetCommentByIdAsync(id);
             if (comment == null) return NotFound();
 
-            var user = await _userManager.GetUserAsync(User);
+            var postId = comment.PostId; 
+
             var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            var isModerator = await _userManager.IsInRoleAsync(user, "Moderator");
 
-            if (comment.UserId != user.Id && !isAdmin) return Forbid();
+            if (comment.UserId != user.Id && !isAdmin && !isModerator)
+                return Forbid();
 
-            // Изтриване на всички отговори
-            _context.Comments.RemoveRange(comment.Replies);
-            _context.Comments.Remove(comment);
-            await _context.SaveChangesAsync();
+            var success = await _commentService.DeleteCommentAsync(id, user.Id);
+            if (!success) return Forbid();
 
-            return RedirectToAction("Details", "Post", new { id = comment.PostId });
+            return RedirectToAction("Details", "Post", new { id = postId });
         }
-
     }
 }
