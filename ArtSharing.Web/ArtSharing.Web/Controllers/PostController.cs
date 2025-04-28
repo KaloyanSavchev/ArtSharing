@@ -27,15 +27,9 @@ namespace ArtSharing.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PostCreateViewModel model)
         {
-            if (model.ImageFile == null)
-            {
-                ModelState.AddModelError("ImageFile", "You must upload an image.");
-            }
-
             if (!ModelState.IsValid)
             {
                 var categories = await _postService.GetAllCategoriesAsync();
@@ -43,22 +37,46 @@ namespace ArtSharing.Web.Controllers
                 return View(model);
             }
 
+            if (model.ImageFiles == null || !model.ImageFiles.Any())
+            {
+                ModelState.AddModelError("ImageFiles", "You must upload at least one image.");
+                var categories = await _postService.GetAllCategoriesAsync();
+                ViewBag.CategoryId = new SelectList(categories, "Id", "Name", model.CategoryId);
+                return View(model);
+            }
+
+            if (model.ImageFiles.Count > 5)
+            {
+                ModelState.AddModelError("ImageFiles", "You can upload up to 5 images.");
+                var categories = await _postService.GetAllCategoriesAsync();
+                ViewBag.CategoryId = new SelectList(categories, "Id", "Name", model.CategoryId);
+                return View(model);
+            }
+
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            if (user == null)
+                return Unauthorized();
 
             await _postService.CreatePostAsync(model, user.Id);
+
             return RedirectToAction("Index", "Home");
         }
+
 
         [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return NotFound();
 
             var post = await _postService.GetPostDetailsAsync(id.Value);
-            if (post == null) return NotFound();
+            if (post == null)
+                return NotFound();
 
-            ViewBag.Comments = post.Comments.Where(c => c.ParentCommentId == null).ToList();
+            ViewBag.Comments = post.Comments
+                .Where(c => c.ParentCommentId == null)
+                .ToList();
+
             return View(post);
         }
 

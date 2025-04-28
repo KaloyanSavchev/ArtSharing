@@ -21,8 +21,9 @@
     </div>
 
     <div class="form-group mb-3">
-        <label>Upload Image</label>
-        <input type="file" name="ImageFile" class="form-control" />
+        <label>Upload Images (max 5)</label>
+        <input type="file" asp-for="ImageFiles" class="form-control" multiple accept="image/*" />
+        <span asp-validation-for="ImageFiles" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">

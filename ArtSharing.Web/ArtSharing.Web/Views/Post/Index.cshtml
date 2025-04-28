@@ -5,11 +5,13 @@
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var post in Model)
         {
+            var firstImage = post.PostImages.FirstOrDefault()?.ImagePath ?? "/images/default-placeholder.png"; // ако няма снимка
+
             <div class="col">
                 <div class="card h-100 shadow-sm">
                     <div class="image-card-wrapper">
-                        <div class="image-blur-bg" style="background-image: url('@post.ImagePath')"></div>
-                        <img src="@post.ImagePath" alt="@post.Title" class="main-image" />
+                        <div class="image-blur-bg" style="background-image: url('@firstImage')"></div>
+                        <img src="@firstImage" alt="@post.Title" class="main-image" />
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">@post.Title</h5>

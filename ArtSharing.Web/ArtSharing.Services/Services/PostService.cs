@@ -2,8 +2,10 @@
 using ArtSharing.Data.Models.Models;
 using ArtSharing.Services.Interfaces;
 using ArtSharing.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace ArtSharing.Services.Services
 {
@@ -11,11 +13,13 @@ namespace ArtSharing.Services.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly IWebHostEnvironment _environment;
 
-        public PostService(ApplicationDbContext context, UserManager<User> userManager)
+        public PostService(ApplicationDbContext context, UserManager<User> userManager, IWebHostEnvironment environment)
         {
             _context = context;
             _userManager = userManager;
+            _environment = environment;
         }
 
         public async Task<List<Category>> GetAllCategoriesAsync()
@@ -25,26 +29,50 @@ namespace ArtSharing.Services.Services
 
         public async Task CreatePostAsync(PostCreateViewModel model, string userId)
         {
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await model.ImageFile.CopyToAsync(stream);
-            }
-
             var post = new Post
             {
                 Title = model.Title,
                 Description = model.Description,
                 CategoryId = model.CategoryId,
-                ImagePath = "/images/" + fileName,
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow
             };
 
             _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); 
+
+            if (model.ImageFiles != null && model.ImageFiles.Any())
+            {
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                foreach (var file in model.ImageFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(fileStream);
+                        }
+
+                        var postImage = new PostImage
+                        {
+                            PostId = post.Id,
+                            ImagePath = "/uploads/" + uniqueFileName
+                        };
+
+                        _context.PostImages.Add(postImage);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<Post?> GetPostDetailsAsync(int id)
@@ -52,6 +80,7 @@ namespace ArtSharing.Services.Services
             return await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
+                .Include(p => p.PostImages)
                 .Include(p => p.Likes)
                     .ThenInclude(l => l.User)
                 .Include(p => p.Comments)
@@ -81,7 +110,6 @@ namespace ArtSharing.Services.Services
                 CategoryId = post.CategoryId,
                 CreatedAt = post.CreatedAt,
                 UserId = post.UserId,
-                ImagePath = post.ImagePath
             };
         }
 

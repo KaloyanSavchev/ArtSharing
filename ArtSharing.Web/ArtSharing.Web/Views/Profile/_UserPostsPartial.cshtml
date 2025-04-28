@@ -9,8 +9,20 @@
             <div class="col">
                 <div class="card h-100 shadow-sm">
                     <div class="image-card-wrapper">
-                        <div class="image-blur-bg" style="background-image: url('@post.ImagePath');"></div>
-                        <img src="@post.ImagePath" alt="@ContentFilter.CensorText(post.Title)" class="main-image" />
+                        @if (post.PostImages != null && post.PostImages.Any())
+                        {
+                            var firstImage = post.PostImages.FirstOrDefault();
+                            if (firstImage != null)
+                            {
+                                <div class="image-blur-bg" style="background-image: url('@firstImage.ImagePath');"></div>
+                                <img src="@firstImage.ImagePath" alt="@ContentFilter.CensorText(post.Title)" class="main-image" />
+                            }
+                        }
+                        else
+                        {
+                            <div class="image-blur-bg" style="background-color: #e0e0e0;"></div>
+                            <img src="/images/noImage.jpg" alt="No Image" class="main-image" />
+                        }
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">@ContentFilter.CensorText(post.Title)</h5>

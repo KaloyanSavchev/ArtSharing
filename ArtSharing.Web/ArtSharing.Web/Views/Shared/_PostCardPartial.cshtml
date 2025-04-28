@@ -3,17 +3,22 @@
 
 <div class="col">
     <div class="card h-100 shadow-sm" data-category-id="@Model.CategoryId">
+        @{
+            var firstImage = Model.PostImages?.FirstOrDefault()?.ImagePath ?? "/images/no-image-available.png";
+        }
+
         <div class="image-card-wrapper">
-            <div class="image-blur-bg" style="background-image: url('@Model.ImagePath');"></div>
-            <img src="@Model.ImagePath" alt="@Model.Title" class="main-image" />
+            <div class="image-blur-bg" style="background-image: url('@firstImage');"></div>
+            <img src="@firstImage" alt="@ContentFilter.CensorText(Model.Title)" class="main-image" />
         </div>
+
         <div class="card-body">
             <h5 class="card-title">@ContentFilter.CensorText(Model.Title)</h5>
             <p class="card-text">@ContentFilter.CensorText(Model.Description)</p>
             <a asp-controller="Post" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
         </div>
         <div class="card-footer text-muted">
-            by <strong>@Model.User.UserName</strong> | @Model.Category?.Name
+            by <strong>@Model.User?.UserName</strong> | @Model.Category?.Name
         </div>
     </div>
 </div>

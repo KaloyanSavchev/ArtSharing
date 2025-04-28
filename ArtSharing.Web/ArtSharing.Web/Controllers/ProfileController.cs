@@ -153,5 +153,28 @@ namespace ArtSharing.Web.Controllers
 
             return PartialView("_UserPostsPartial", user.Posts.ToList());
         }
+        [HttpGet]
+        public async Task<IActionResult> LoadTab(string tab)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            var model = await _profileService.GetOwnProfileAsync(user, tab);
+
+            if (tab == "MyPosts")
+            {
+                return PartialView("_UserPostsPartial", model.UserPosts);
+            }
+            else if (tab == "LikedPosts")
+            {
+                return PartialView("_UserPostsPartial", model.LikedPosts);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
     }
 }

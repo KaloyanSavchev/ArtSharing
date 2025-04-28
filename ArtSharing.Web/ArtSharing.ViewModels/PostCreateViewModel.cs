@@ -13,8 +13,8 @@ namespace ArtSharing.ViewModels
         [StringLength(1000, ErrorMessage = "The description must be at most 1000 characters.")]
         public string Description { get; set; }
 
-        [Required(ErrorMessage = "You must upload an image.")]
-        public IFormFile ImageFile { get; set; }
+        [Required(ErrorMessage = "Please select at least one image.")]
+        public List<IFormFile> ImageFiles { get; set; } = new List<IFormFile>();
 
         [Required(ErrorMessage = "Please select a category.")]
         public int CategoryId { get; set; }

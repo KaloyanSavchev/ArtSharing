@@ -19,6 +19,7 @@ namespace ArtSharing.Data
         public DbSet<Report> Reports { get; set; }
         public DbSet<UserFollow> UserFollows { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<PostImage> PostImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -98,6 +99,12 @@ namespace ArtSharing.Data
             .WithMany(u => u.Followers)
             .HasForeignKey(f => f.FollowingId)
             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PostImage>()
+        .HasOne(pi => pi.Post)
+        .WithMany(p => p.PostImages)
+        .HasForeignKey(pi => pi.PostId)
+        .OnDelete(DeleteBehavior.Cascade);
 
         }
     }

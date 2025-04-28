@@ -85,20 +85,28 @@ namespace ArtSharing.Data
                 var category = await context.Categories.FirstOrDefaultAsync();
                 if (category != null && adminUser != null)
                 {
-                    context.Posts.Add(new Post
+                    var post = new Post
                     {
                         Title = "Test Post",
                         Description = "This is a seed test post.",
-                        ImagePath = "/images/test.jpg",
                         CreatedAt = DateTime.UtcNow,
                         UserId = adminUser.Id,
-                        CategoryId = category.Id
-                    });
+                        CategoryId = category.Id,
+                        PostImages = new List<PostImage>
+                        {
+                            new PostImage
+                            {
+                                ImagePath = "/uploads/test.jpg"
+                            }
+                        }
+                    };
+
+                    context.Posts.Add(post);
 
                     await context.SaveChangesAsync();
-                    //Console.WriteLine("✅ Test post added.");
                 }
             }
+
             //Console.WriteLine("✅ Seeding complete.");
         }
     }

@@ -30,12 +30,17 @@ namespace ArtSharing.Services.Services
             var myPosts = await _context.Posts
                 .Where(p => p.UserId == user.Id)
                 .Include(p => p.Category)
+                .Include(p => p.PostImages)
                 .ToListAsync();
 
             var likedPosts = await _context.Likes
                 .Where(l => l.UserId == user.Id)
-                .Include(l => l.Post).ThenInclude(p => p.User)
-                .Include(l => l.Post).ThenInclude(p => p.Category)
+                .Include(l => l.Post)
+                    .ThenInclude(p => p.User)
+                .Include(l => l.Post)
+                    .ThenInclude(p => p.Category)
+                .Include(l => l.Post)
+                    .ThenInclude(p => p.PostImages) 
                 .Select(l => l.Post)
                 .ToListAsync();
 
@@ -78,6 +83,7 @@ namespace ArtSharing.Services.Services
             var posts = await _context.Posts
                 .Where(p => p.UserId == user.Id)
                 .Include(p => p.Category)
+                .Include(p => p.PostImages)
                 .ToListAsync();
 
             return new ProfileViewModel
@@ -97,6 +103,7 @@ namespace ArtSharing.Services.Services
                 UserPosts = posts
             };
         }
+
 
         public async Task UpdateProfileAsync(User user, EditProfileViewModel model, IFormFile? profileImage)
         {

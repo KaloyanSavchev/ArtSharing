@@ -1,7 +1,6 @@
 ﻿@using ArtSharing.Web.Helpers
 @model ArtSharing.ViewModels.ProfileViewModel
 
-
 @{
     ViewData["Title"] = "My Profile";
 }
@@ -43,50 +42,47 @@
 
     <!-- Toggle Buttons -->
     <div class="mb-4 text-center">
-        <a asp-action="Index" asp-route-tab="MyPosts"
-           class="btn @(Model.SelectedTab == "MyPosts" ? "btn-dark" : "btn-outline-dark") me-2">My Posts</a>
-
-        <a asp-action="Index" asp-route-tab="LikedPosts"
-           class="btn @(Model.SelectedTab == "LikedPosts" ? "btn-dark" : "btn-outline-dark")">Liked Posts</a>
+        <button class="btn @(Model.SelectedTab == "MyPosts" ? "btn-dark" : "btn-outline-dark") me-2" data-tab="MyPosts" id="myPostsBtn">My Posts</button>
+        <button class="btn @(Model.SelectedTab == "LikedPosts" ? "btn-dark" : "btn-outline-dark")" data-tab="LikedPosts" id="likedPostsBtn">Liked Posts</button>
     </div>
 
-    <!-- Gallery -->
-    @if (Model.SelectedTab == "MyPosts")
-    {
-        <h4 class="mb-3">🖼 My Posts</h4>
-
-        @if (Model.UserPosts.Any())
+    <!-- Posts Container -->
+    <div id="postsContainer">
+        @if (Model.SelectedTab == "MyPosts")
         {
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                @foreach (var post in Model.UserPosts)
-                {
-                    @await Html.PartialAsync("_PostCardPartial", post)
-                }
-            </div>
+            <h4 class="mb-3">🖼 My Posts</h4>
+            @if (Model.UserPosts.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    @foreach (var post in Model.UserPosts)
+                    {
+                        @await Html.PartialAsync("_PostCardPartial", post)
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">You haven’t uploaded any posts yet.</p>
+            }
         }
-        else
+        else if (Model.SelectedTab == "LikedPosts")
         {
-            <p class="text-muted">You haven’t uploaded any posts yet.</p>
+            <h4 class="mb-3">❤️ Liked Posts</h4>
+            @if (Model.LikedPosts.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    @foreach (var post in Model.LikedPosts)
+                    {
+                        @await Html.PartialAsync("_PostCardPartial", post)
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">You haven’t liked any posts yet.</p>
+            }
         }
-    }
-    else if (Model.SelectedTab == "LikedPosts")
-    {
-        <h4 class="mb-3">❤️ Liked Posts</h4>
-
-        @if (Model.LikedPosts.Any())
-        {
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                @foreach (var post in Model.LikedPosts)
-                {
-                    @await Html.PartialAsync("_PostCardPartial", post)
-                }
-            </div>
-        }
-        else
-        {
-            <p class="text-muted">You haven’t liked any posts yet.</p>
-        }
-    }
+    </div>
 </div>
 
 <!-- Overlay за Followers/Following -->
@@ -102,6 +98,7 @@
 
 @section Scripts {
     <script>
+        // Followers / Following overlay
         const overlay = document.getElementById('overlay');
         const userList = document.getElementById('userList');
         const searchInput = document.getElementById('searchInput');
@@ -135,8 +132,7 @@
                 const item = document.createElement('a');
                 item.className = 'list-group-item list-group-item-action';
                 item.href = `/Profile/About?username=${user.userName}`;
-                item.innerHTML = `<img src="${user.profilePicture}" class="rounded me-2" style="width: 30px; height: 30px; object-fit: cover;">
-                                          ${user.userName}`;
+                item.innerHTML = `<img src="${user.profilePicture}" class="rounded me-2" style="width: 30px; height: 30px; object-fit: cover;"> ${user.userName}`;
                 userList.appendChild(item);
             });
 
@@ -155,6 +151,30 @@
 
                 noUsersMessage.style.display = visibleCount === 0 ? 'block' : 'none';
             };
+        }
+
+        document.getElementById('myPostsBtn')?.addEventListener('click', function () {
+            loadTab('MyPosts');
+        });
+
+        document.getElementById('likedPostsBtn')?.addEventListener('click', function () {
+            loadTab('LikedPosts');
+        });
+
+        async function loadTab(tab) {
+            const response = await fetch(`/Profile/LoadTab?tab=${tab}`);
+            const html = await response.text();
+            document.getElementById('postsContainer').innerHTML = html;
+
+            // Update buttons styling
+            document.getElementById('myPostsBtn').className = "btn btn-outline-dark me-2";
+            document.getElementById('likedPostsBtn').className = "btn btn-outline-dark";
+
+            if (tab === "MyPosts") {
+                document.getElementById('myPostsBtn').className = "btn btn-dark me-2";
+            } else {
+                document.getElementById('likedPostsBtn').className = "btn btn-dark";
+            }
         }
     </script>
 }

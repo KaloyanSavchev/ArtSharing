@@ -19,6 +19,7 @@ namespace ArtSharing.Services.Services
             var postsQuery = _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
+                .Include(p => p.PostImages) 
                 .AsQueryable();
 
             postsQuery = ApplySorting(postsQuery, sortOrder);
@@ -31,6 +32,7 @@ namespace ArtSharing.Services.Services
             var postsQuery = _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
+                .Include(p => p.PostImages) 
                 .AsQueryable();
 
             postsQuery = ApplySorting(postsQuery, sortOrder);
@@ -43,6 +45,7 @@ namespace ArtSharing.Services.Services
             var postsQuery = _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
+                .Include(p => p.PostImages) 
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchTerm))

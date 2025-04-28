@@ -18,9 +18,6 @@ namespace ArtSharing.Data.Models.Models
         public string Description { get; set; }
 
         [Required]
-        public string ImagePath { get; set; }
-
-        [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [ForeignKey("User")]
@@ -38,5 +35,6 @@ namespace ArtSharing.Data.Models.Models
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Like> Likes { get; set; } = new List<Like>();
         public ICollection<Report> Reports { get; set; } = new List<Report>();
+        public ICollection<PostImage> PostImages { get; set; } = new List<PostImage>();
     }
 }
