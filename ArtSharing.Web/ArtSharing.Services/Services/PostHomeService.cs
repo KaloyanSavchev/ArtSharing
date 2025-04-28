@@ -14,44 +14,64 @@ namespace ArtSharing.Services.Services
             _context = context;
         }
 
-        public async Task<List<Post>> GetInitialPostsAsync(int take = 6)
+        public async Task<List<Post>> GetInitialPostsAsync(int take = 6, string sortOrder = "newest")
         {
-            return await _context.Posts
-                .OrderByDescending(p => p.CreatedAt)
+            var postsQuery = _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
-                .Take(take)
-                .ToListAsync();
+                .AsQueryable();
+
+            postsQuery = ApplySorting(postsQuery, sortOrder);
+
+            return await postsQuery.Take(take).ToListAsync();
         }
 
-        public async Task<List<Post>> LoadMorePostsAsync(int skip = 0, int take = 6)
+        public async Task<List<Post>> LoadMorePostsAsync(int skip = 0, int take = 6, string sortOrder = "newest")
         {
-            return await _context.Posts
-                .OrderByDescending(p => p.CreatedAt)
-                .Skip(skip)
-                .Take(take)
+            var postsQuery = _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
-                .ToListAsync();
+                .AsQueryable();
+
+            postsQuery = ApplySorting(postsQuery, sortOrder);
+
+            return await postsQuery.Skip(skip).Take(take).ToListAsync();
         }
 
-        public async Task<List<Post>> FilterPostsAsync(string? searchTerm, int? categoryId)
+        public async Task<List<Post>> FilterPostsAsync(string? searchTerm, int? categoryId, string sortOrder = "newest")
         {
-            return await _context.Posts
-                .Where(p =>
-                    (string.IsNullOrEmpty(searchTerm) ||
-                     p.Title.Contains(searchTerm) ||
-                     p.Description.Contains(searchTerm)) &&
-                    (!categoryId.HasValue || p.CategoryId == categoryId.Value))
-                .OrderByDescending(p => p.CreatedAt)
+            var postsQuery = _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Category)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                postsQuery = postsQuery.Where(p => p.Title.Contains(searchTerm) || p.Description.Contains(searchTerm));
+            }
+
+            if (categoryId.HasValue)
+            {
+                postsQuery = postsQuery.Where(p => p.CategoryId == categoryId);
+            }
+
+            postsQuery = ApplySorting(postsQuery, sortOrder);
+
+            return await postsQuery.ToListAsync();
         }
 
         public async Task<List<Category>> GetAllCategoriesAsync()
         {
             return await _context.Categories.ToListAsync();
+        }
+
+        private IQueryable<Post> ApplySorting(IQueryable<Post> query, string sortOrder)
+        {
+            return sortOrder switch
+            {
+                "popular" => query.OrderByDescending(p => p.Likes.Count),
+                _ => query.OrderByDescending(p => p.CreatedAt),
+            };
         }
     }
 }

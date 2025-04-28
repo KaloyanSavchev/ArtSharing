@@ -17,26 +17,27 @@ namespace ArtSharing.Web.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder = "newest")
         {
-            var posts = await _postHomeService.GetInitialPostsAsync(6);
+            var posts = await _postHomeService.GetInitialPostsAsync(6, sortOrder);
             var categories = await _postHomeService.GetAllCategoriesAsync();
 
             ViewBag.Categories = categories;
+            ViewBag.SortOrder = sortOrder;
             return View(posts);
         }
 
         [HttpGet]
-        public async Task<IActionResult> LoadMorePosts(int skip = 0, int take = 6)
+        public async Task<IActionResult> LoadMorePosts(int skip = 0, int take = 6, string sortOrder = "newest")
         {
-            var posts = await _postHomeService.LoadMorePostsAsync(skip, take);
+            var posts = await _postHomeService.LoadMorePostsAsync(skip, take, sortOrder);
             return PartialView("_PostCardListPartial", posts);
         }
 
         [HttpGet]
-        public async Task<IActionResult> FilterPosts(string? searchTerm, int? categoryId)
+        public async Task<IActionResult> FilterPosts(string? searchTerm, int? categoryId, string sortOrder = "newest")
         {
-            var posts = await _postHomeService.FilterPostsAsync(searchTerm, categoryId);
+            var posts = await _postHomeService.FilterPostsAsync(searchTerm, categoryId, sortOrder);
             return PartialView("_PostCardListPartial", posts);
         }
 

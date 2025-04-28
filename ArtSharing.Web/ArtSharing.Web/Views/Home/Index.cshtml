@@ -10,7 +10,7 @@
 <div class="container">
     <!-- Filter Controls -->
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-5">
             <input type="text" id="searchInput" class="form-control" placeholder="Search by title or description..." />
         </div>
         <div class="col-md-4">
@@ -23,6 +23,12 @@
                         <option value="@category.Id">@category.Name</option>
                     }
                 }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="sortOrder" class="form-select">
+                <option value="newest" selected>Newest</option>
+                <option value="popular">Most Liked</option>
             </select>
         </div>
     </div>
@@ -51,9 +57,12 @@
         const loadMoreBtn = document.getElementById("loadMoreBtn");
         const searchInput = document.getElementById("searchInput");
         const categoryFilter = document.getElementById("categoryFilter");
+        const sortOrder = document.getElementById("sortOrder");
 
         loadMoreBtn.addEventListener("click", async function () {
-            const response = await fetch(`/Home/LoadMorePosts?skip=${skipCount}&take=${takeCount}`);
+            const sort = sortOrder.value;
+
+            const response = await fetch(`/Home/LoadMorePosts?skip=${skipCount}&take=${takeCount}&sortOrder=${sort}`);
             const html = await response.text();
 
             if (html.trim()) {
@@ -67,17 +76,21 @@
         async function filterPosts() {
             const search = searchInput.value.trim();
             const categoryId = categoryFilter.value;
+            const sort = sortOrder.value;
 
-            const url = `/Home/FilterPosts?searchTerm=${encodeURIComponent(search)}&categoryId=${categoryId}`;
+            const url = `/Home/FilterPosts?searchTerm=${encodeURIComponent(search)}&categoryId=${categoryId}&sortOrder=${sort}`;
             const response = await fetch(url);
             const html = await response.text();
 
             postContainer.innerHTML = html;
-            loadMoreBtn.style.display = "none";
+            skipCount = document.querySelectorAll("#postContainer .col").length;
+
+            loadMoreBtn.style.display = "block";
         }
 
         searchInput.addEventListener("input", debounce(filterPosts, 300));
         categoryFilter.addEventListener("change", filterPosts);
+        sortOrder.addEventListener("change", filterPosts);
 
         function debounce(func, delay) {
             let timeout;
