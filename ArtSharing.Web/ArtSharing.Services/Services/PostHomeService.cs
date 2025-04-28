@@ -70,6 +70,8 @@ namespace ArtSharing.Services.Services
             return sortOrder switch
             {
                 "popular" => query.OrderByDescending(p => p.Likes.Count),
+                "leastliked" => query.OrderBy(p => p.Likes.Count),
+                "oldest" => query.OrderBy(p => p.CreatedAt),
                 _ => query.OrderByDescending(p => p.CreatedAt),
             };
         }
