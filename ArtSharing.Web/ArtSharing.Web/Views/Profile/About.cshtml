@@ -1,7 +1,6 @@
 ﻿@using ArtSharing.Web.Helpers
 @model ArtSharing.ViewModels.ProfileViewModel
 
-
 @{
     ViewData["Title"] = $"{Model.UserName}'s Profile";
 }
@@ -56,11 +55,12 @@
         </div>
     </div>
 
-    <div id="userPostsSection" class="mt-5">
-        @if (Model.UserPosts != null && Model.UserPosts.Any() && (Model.IsOwnProfile || Model.IsFollowing))
+    <hr class="my-4" />
+    <h4 class="mb-3">🖼 Posts by @Model.UserName</h4>
+
+    <div id="userPostsSection" class="mt-4">
+        @if (Model.UserPosts != null && Model.UserPosts.Any())
         {
-            <hr class="my-4" />
-            <h4 class="mb-3">🖼 Posts by @Model.UserName</h4>
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 @foreach (var post in Model.UserPosts)
                 {
@@ -70,13 +70,9 @@
                 }
             </div>
         }
-        else if (!Model.IsOwnProfile && !Model.IsFollowing)
-        {
-            <p class="text-muted mt-4">You need to follow this user to see their posts.</p>
-        }
         else
         {
-            <p class="text-muted mt-4">This user hasn’t uploaded any posts yet.</p>
+            <p class="text-center text-muted mt-4" style="font-size: 1.2rem;">This user hasn’t uploaded any posts yet.</p>
         }
     </div>
 </div>
@@ -119,14 +115,10 @@
 
                         const postsSection = document.getElementById("userPostsSection");
 
-                        if (data.isFollowing) {
-                            const postsResponse = await fetch(`/Profile/GetUserPostsPartial?username=${username}`);
-                            const html = await postsResponse.text();
-                            postsSection.innerHTML = html;
-                            applyImageCardStyles();
-                        } else {
-                            postsSection.innerHTML = `<p class="text-muted mt-4">You need to follow this user to see their posts.</p>`;
-                        }
+                        const postsResponse = await fetch(`/Profile/GetUserPostsPartial?username=${username}`);
+                        const html = await postsResponse.text();
+                        postsSection.innerHTML = html;
+                        applyImageCardStyles();
                     }
                 });
             }

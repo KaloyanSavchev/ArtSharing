@@ -143,13 +143,15 @@ namespace ArtSharing.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUserPostsPartial(string username)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null) return Unauthorized();
+            var user = await _userManager.Users
+                .Include(u => u.Posts).ThenInclude(p => p.Category)
+                .Include(u => u.Posts).ThenInclude(p => p.Likes)
+                .FirstOrDefaultAsync(u => u.UserName == username);
 
-            var posts = await _profileService.GetUserPostsAsync(username, currentUser.Id);
-            if (posts == null) return Unauthorized();
+            if (user == null)
+                return NotFound();
 
-            return PartialView("_UserPostsPartial", posts);
+            return PartialView("_UserPostsPartial", user.Posts.ToList());
         }
     }
 }
