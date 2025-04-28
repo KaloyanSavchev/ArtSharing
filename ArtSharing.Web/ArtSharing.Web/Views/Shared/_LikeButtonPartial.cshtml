@@ -6,20 +6,17 @@
 @{
     var user = await UserManager.GetUserAsync(User);
     var hasLiked = Model.Likes.Any(l => l.UserId == user?.Id);
-    var isOwnerOrAdmin = User.Identity?.Name == Model.User.UserName || User.IsInRole("Admin");
 }
 
 <form class="like-form" data-post-id="@Model.Id">
     @Html.AntiForgeryToken()
     <button type="submit" class="btn btn-link p-0" style="font-size: 1.5rem;">
-        <span class="heart-icon @(hasLiked ? "text-danger" : "text-secondary")">
+        <span id="heart-icon-@Model.Id" class="heart-icon @(hasLiked ? "text-danger" : "text-secondary")">
             @(hasLiked ? "❤️" : "🤍")
         </span>
     </button>
-    @if (isOwnerOrAdmin)
-    {
-        <span id="like-count-@Model.Id" class="like-count text-muted ms-2">
-            (@Model.Likes.Count like@(Model.Likes.Count == 1 ? "" : "s"))
-        </span>
-    }
+
+    <span id="like-count-@Model.Id" class="like-count text-muted ms-2">
+        (@Model.Likes.Count like@(Model.Likes.Count == 1 ? "" : "s"))
+    </span>
 </form>

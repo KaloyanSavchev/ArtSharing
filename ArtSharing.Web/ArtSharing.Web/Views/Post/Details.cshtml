@@ -15,6 +15,7 @@
         @Model.User.UserName
     </a>
 </p>
+
 <p><strong>Category:</strong> @Model.Category.Name</p>
 <p><strong>Description:</strong> @ContentFilter.CensorText(Model.Description)</p>
 <p><small class="text-muted">Posted on: @Model.CreatedAt.ToShortDateString()</small></p>
@@ -67,6 +68,49 @@ else
 
 @section Scripts {
     <script>
+        // Изчистване на вече закачени submit събития (ако случайно има)
+        document.querySelectorAll('.like-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation(); // 👉 Спира повторното задействане!
+
+                const postId = form.dataset.postId;
+                const heartIcon = document.getElementById(`heart-icon-${postId}`);
+                const likeCountSpan = document.getElementById(`like-count-${postId}`);
+                const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                try {
+                    const response = await fetch('/Like/ToggleLike', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({ postId: postId })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+
+                        likeCountSpan.innerText = `(${result.likeCount} like${result.likeCount === 1 ? '' : 's'})`;
+
+                        if (result.hasLiked) {
+                            heartIcon.textContent = "❤️";
+                            heartIcon.classList.remove('text-secondary');
+                            heartIcon.classList.add('text-danger');
+                        } else {
+                            heartIcon.textContent = "🤍";
+                            heartIcon.classList.remove('text-danger');
+                            heartIcon.classList.add('text-secondary');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error toggling like:', err);
+                }
+            });
+        });
+
+        // КОМЕНТАРИ - остава същото:
         let loadedComments = 3;
         const postId = @Model.Id;
 
