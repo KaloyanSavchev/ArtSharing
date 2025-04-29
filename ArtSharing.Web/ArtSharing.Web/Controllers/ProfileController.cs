@@ -144,9 +144,13 @@ namespace ArtSharing.Web.Controllers
         public async Task<IActionResult> GetUserPostsPartial(string username)
         {
             var user = await _userManager.Users
-                .Include(u => u.Posts).ThenInclude(p => p.Category)
-                .Include(u => u.Posts).ThenInclude(p => p.Likes)
-                .FirstOrDefaultAsync(u => u.UserName == username);
+    .Include(u => u.Posts)
+        .ThenInclude(p => p.Category)
+    .Include(u => u.Posts)
+        .ThenInclude(p => p.Likes)
+    .Include(u => u.Posts)
+        .ThenInclude(p => p.PostImages)
+    .FirstOrDefaultAsync(u => u.UserName == username);
 
             if (user == null)
                 return NotFound();

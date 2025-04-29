@@ -81,8 +81,17 @@ namespace ArtSharing.Web.Controllers
         public async Task<IActionResult> SubmitUserReport(string targetUserId, string reason)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null || string.IsNullOrEmpty(targetUserId))
+            var targetUser = await _userManager.FindByIdAsync(targetUserId);
+
+            if (currentUser == null || targetUser == null)
                 return Unauthorized();
+
+            var targetRoles = await _userManager.GetRolesAsync(targetUser);
+            if (targetRoles.Contains("Admin"))
+            {
+                TempData["ErrorMessage"] = "You cannot report an Admin account.";
+                return RedirectToPage("/Account/AccessDenied", new { area = "Identity" });
+            }
 
             var alreadyReported = await _reportService.HasAlreadyReportedUserAsync(currentUser.Id, targetUserId);
             if (alreadyReported)
@@ -94,7 +103,7 @@ namespace ArtSharing.Web.Controllers
             await _reportService.ReportUserAsync(currentUser.Id, targetUserId, reason);
 
             TempData["Message"] = "User reported successfully.";
-            return RedirectToAction("About", "Profile", new { username = (await _userManager.FindByIdAsync(targetUserId))?.UserName });
+            return RedirectToAction("About", "Profile", new { username = targetUser.UserName });
         }
     }
 }

@@ -42,15 +42,21 @@
 
     <!-- Toggle Buttons -->
     <div class="mb-4 text-center">
-        <button class="btn @(Model.SelectedTab == "MyPosts" ? "btn-dark" : "btn-outline-dark") me-2" data-tab="MyPosts" id="myPostsBtn">My Posts</button>
-        <button class="btn @(Model.SelectedTab == "LikedPosts" ? "btn-dark" : "btn-outline-dark")" data-tab="LikedPosts" id="likedPostsBtn">Liked Posts</button>
+        <button id="myPostsBtn" class="btn @(Model.SelectedTab == "MyPosts" ? "btn-dark" : "btn-outline-dark") me-2">My Posts</button>
+        <button id="likedPostsBtn" class="btn @(Model.SelectedTab == "LikedPosts" ? "btn-dark" : "btn-outline-dark")">Liked Posts</button>
+    </div>
+
+    <!-- Title -->
+    <div id="postsTitle" class="text-center mb-3">
+        <h4 class="mb-3">
+            @(Model.SelectedTab == "MyPosts" ? "🖼 My Posts" : "❤️ Liked Posts")
+        </h4>
     </div>
 
     <!-- Posts Container -->
     <div id="postsContainer">
         @if (Model.SelectedTab == "MyPosts")
         {
-            <h4 class="mb-3">🖼 My Posts</h4>
             @if (Model.UserPosts.Any())
             {
                 <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -67,7 +73,6 @@
         }
         else if (Model.SelectedTab == "LikedPosts")
         {
-            <h4 class="mb-3">❤️ Liked Posts</h4>
             @if (Model.LikedPosts.Any())
             {
                 <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -153,6 +158,7 @@
             };
         }
 
+        // Tabs logic
         document.getElementById('myPostsBtn')?.addEventListener('click', function () {
             loadTab('MyPosts');
         });
@@ -166,7 +172,13 @@
             const html = await response.text();
             document.getElementById('postsContainer').innerHTML = html;
 
-            // Update buttons styling
+            const titleDiv = document.getElementById('postsTitle');
+            if (tab === "MyPosts") {
+                titleDiv.innerHTML = '<h4 class="mb-3">🖼 My Posts</h4>';
+            } else {
+                titleDiv.innerHTML = '<h4 class="mb-3">❤️ Liked Posts</h4>';
+            }
+
             document.getElementById('myPostsBtn').className = "btn btn-outline-dark me-2";
             document.getElementById('likedPostsBtn').className = "btn btn-outline-dark";
 

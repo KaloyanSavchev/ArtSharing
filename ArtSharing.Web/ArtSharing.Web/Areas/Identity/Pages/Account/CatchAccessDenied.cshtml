@@ -1,0 +1,24 @@
+﻿@page
+@model ArtSharing.Web.Areas.Identity.Pages.Account.CatchAccessDeniedModel
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="container mt-5 text-center">
+    <h1 class="display-4 text-danger">🚫 Access Denied</h1>
+    <p class="lead mt-3">You do not have permission to perform this action.</p>
+
+    <div class="mt-4">
+        <a href="/" class="btn btn-lg btn-primary">🏠 Return to Home</a>
+    </div>
+
+    <p class="text-muted mt-3">If you believe this is a mistake, contact support at <a href="mailto:admin@artsharing.com">admin@artsharing.com</a>.</p>
+</div>
+
+@section Scripts {
+    <script>
+        setTimeout(function () {
+            window.location.href = '/';
+        }, 5000); // After 5 seconds redirect home
+    </script>
+}

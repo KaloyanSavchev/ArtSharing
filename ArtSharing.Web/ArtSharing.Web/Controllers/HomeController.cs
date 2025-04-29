@@ -16,6 +16,10 @@ namespace ArtSharing.Web.Controllers
             _postHomeService = postHomeService;
             _logger = logger;
         }
+        public IActionResult Rules()
+        {
+            return View();
+        }
 
         public async Task<IActionResult> Index(string sortOrder = "newest")
         {

@@ -36,8 +36,14 @@
                 <label>Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="agreeTerms" />
+                <label class="form-check-label" for="agreeTerms">
+                    I agree to the <a href="javascript:void(0);" id="viewRulesLink">site rules</a>.
+                </label>
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary" id="registerButton" disabled>Register</button>
+            
         </form>
     </div>
 
@@ -79,4 +85,50 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        const agreeCheckbox = document.getElementById('agreeTerms');
+        const registerButton = document.getElementById('registerButton');
+
+        agreeCheckbox.addEventListener('change', function () {
+            registerButton.disabled = !this.checked;
+        });
+
+        // Modal logic
+        document.getElementById('viewRulesLink')?.addEventListener('click', function () {
+            const modalHtml = `
+                <div class="modal fade" id="rulesModal" tabindex="-1" aria-labelledby="rulesModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="rulesModalLabel">Site Rules</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <ul>
+                          <li>Respect other users.</li>
+                          <li>Do not post offensive content.</li>
+                          <li>Do not spam.</li>
+                          <li>Follow copyright laws.</li>
+                          <li>Report any inappropriate content.</li>
+                        </ul>
+                        <p>By registering, you agree to these rules.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            `;
+
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = modalHtml;
+            document.body.appendChild(wrapper);
+
+            const modal = new bootstrap.Modal(document.getElementById('rulesModal'));
+            modal.show();
+
+            modal._element.addEventListener('hidden.bs.modal', function () {
+                wrapper.remove();
+            });
+        });
+    </script>
 }
+
