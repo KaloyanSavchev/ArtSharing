@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtSharing.Data.Models", "A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtSharing.Data", "ArtSharing.Data\ArtSharing.Data.csproj", "{EC78B9AE-F49D-41CC-98B4-3B19C2E3B009}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArtSharing.Services", "ArtSharing.Services\ArtSharing.Services.csproj", "{2C367164-0F0E-4814-BD9C-3905801DAE03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtSharing.Services", "ArtSharing.Services\ArtSharing.Services.csproj", "{2C367164-0F0E-4814-BD9C-3905801DAE03}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArtSharing.ViewModels", "ArtSharing.ViewModels\ArtSharing.ViewModels.csproj", "{FBCD77AA-5B10-4D23-8622-9E8633ECC1FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtSharing.ViewModels", "ArtSharing.ViewModels\ArtSharing.ViewModels.csproj", "{FBCD77AA-5B10-4D23-8622-9E8633ECC1FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArtSharing.Tests", "ArtSharing.Tests\ArtSharing.Tests.csproj", "{BF8DC018-703E-4226-9DCD-CEAEF8C079AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{FBCD77AA-5B10-4D23-8622-9E8633ECC1FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBCD77AA-5B10-4D23-8622-9E8633ECC1FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBCD77AA-5B10-4D23-8622-9E8633ECC1FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF8DC018-703E-4226-9DCD-CEAEF8C079AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF8DC018-703E-4226-9DCD-CEAEF8C079AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF8DC018-703E-4226-9DCD-CEAEF8C079AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF8DC018-703E-4226-9DCD-CEAEF8C079AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
