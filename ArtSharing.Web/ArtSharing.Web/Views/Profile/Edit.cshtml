@@ -13,9 +13,9 @@
         <span asp-validation-for="UserName" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
+    <div class="form-floating mb-3">
+        <input asp-for="Email" class="form-control" placeholder="Email" readonly />
         <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
