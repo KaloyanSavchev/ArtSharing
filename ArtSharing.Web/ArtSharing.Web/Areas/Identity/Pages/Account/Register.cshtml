@@ -4,82 +4,66 @@
     ViewData["Title"] = "Register";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1 class="text-center my-4">@ViewData["Title"]</h1>
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="auth-card">
+            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <h2 class="text-center">Create a new account</h2>
+                <hr />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" placeholder="Email" autocomplete="username" aria-required="true" />
-                <label>Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Email" class="form-control" placeholder="Email" autocomplete="username" />
+                    <label>Email</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Username" class="form-control" placeholder="Username" />
-                <label>Username</label>
-                <span asp-validation-for="Input.Username" class="text-danger"></span>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Username" class="form-control" placeholder="Username" />
+                    <label>Username</label>
+                    <span asp-validation-for="Input.Username" class="text-danger"></span>
+                </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" placeholder="Password" autocomplete="new-password" aria-required="true" />
-                <label>Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Password" class="form-control" placeholder="Password" autocomplete="new-password" />
+                    <label>Password</label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
 
-            <div class="form-floating mb-4">
-                <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Confirm Password" autocomplete="new-password" aria-required="true" />
-                <label>Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="agreeTerms" />
-                <label class="form-check-label" for="agreeTerms">
-                    I agree to the <a href="javascript:void(0);" id="viewRulesLink">site rules</a>.
-                </label>
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary" id="registerButton" disabled>Register</button>
-            
-        </form>
-    </div>
+                <div class="form-floating mb-4">
+                    <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Confirm Password" autocomplete="new-password" />
+                    <label>Confirm Password</label>
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
 
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
-                                article
-                                about setting up this ASP.NET application to support logging in via external services
-                            </a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-outline-primary me-2 mb-2" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
-                                        @provider.DisplayName
-                                    </button>
-                                }
-                            </p>
-                        </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="agreeTerms" />
+                    <label class="form-check-label" for="agreeTerms">
+                        I agree to the <a href="javascript:void(0);" id="viewRulesLink">site rules</a>.
+                    </label>
+                </div>
+
+                <button type="submit" class="w-100 btn btn-lg btn-brown" id="registerButton" disabled>Register</button>
+            </form>
+
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                <hr />
+                <div class="text-center">
+                    <p>Or register with:</p>
+                    <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        @foreach (var provider in Model.ExternalLogins!)
+                        {
+                            <button type="submit" class="btn btn-outline-primary me-2 mb-2" name="provider" value="@provider.Name">
+                                @provider.DisplayName
+                            </button>
+                        }
                     </form>
-                }
+                </div>
             }
-        </section>
+        </div>
     </div>
 </div>
 
@@ -93,30 +77,29 @@
             registerButton.disabled = !this.checked;
         });
 
-        // Modal logic
         document.getElementById('viewRulesLink')?.addEventListener('click', function () {
             const modalHtml = `
-                <div class="modal fade" id="rulesModal" tabindex="-1" aria-labelledby="rulesModalLabel" aria-hidden="true">
-                  <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="rulesModalLabel">Site Rules</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <div class="modal-body">
-                        <ul>
-                          <li>Respect other users.</li>
-                          <li>Do not post offensive content.</li>
-                          <li>Do not spam.</li>
-                          <li>Follow copyright laws.</li>
-                          <li>Report any inappropriate content.</li>
-                        </ul>
-                        <p>By registering, you agree to these rules.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-            `;
+                        <div class="modal fade" id="rulesModal" tabindex="-1" aria-labelledby="rulesModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="rulesModalLabel">Site Rules</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <ul>
+                                  <li>Respect other users.</li>
+                                  <li>Do not post offensive content.</li>
+                                  <li>Do not spam.</li>
+                                  <li>Follow copyright laws.</li>
+                                  <li>Report any inappropriate content.</li>
+                                </ul>
+                                <p>By registering, you agree to these rules.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    `;
 
             const wrapper = document.createElement('div');
             wrapper.innerHTML = modalHtml;
@@ -131,4 +114,3 @@
         });
     </script>
 }
-

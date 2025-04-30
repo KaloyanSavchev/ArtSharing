@@ -17,6 +17,6 @@ namespace ArtSharing.ViewModels
         public List<IFormFile> ImageFiles { get; set; } = new List<IFormFile>();
 
         [Required(ErrorMessage = "Please select a category.")]
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
     }
 }

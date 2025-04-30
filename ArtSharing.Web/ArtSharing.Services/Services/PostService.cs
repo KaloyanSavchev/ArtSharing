@@ -33,7 +33,7 @@ namespace ArtSharing.Services.Services
             {
                 Title = model.Title,
                 Description = model.Description,
-                CategoryId = model.CategoryId,
+                CategoryId = model.CategoryId.Value,
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow
             };

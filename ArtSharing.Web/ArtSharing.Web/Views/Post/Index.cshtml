@@ -5,18 +5,18 @@
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var post in Model)
         {
-            var firstImage = post.PostImages.FirstOrDefault()?.ImagePath ?? "/images/default-placeholder.png"; // ако няма снимка
+            var firstImage = post.PostImages.FirstOrDefault()?.ImagePath ?? "/images/default-placeholder.png";
 
             <div class="col">
                 <div class="card h-100 shadow-sm">
                     <div class="image-card-wrapper">
-                        <div class="image-blur-bg" style="background-image: url('@firstImage')"></div>
+                        <div class="image-blur-bg" style="background-image: url('@firstImage');"></div>
                         <img src="@firstImage" alt="@post.Title" class="main-image" />
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">@post.Title</h5>
-                        <p class="card-text text-muted">@post.Category?.Name</p>
-                        <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="btn btn-sm btn-outline-primary">View</a>
+                        <p class="card-text text-muted mb-2">@post.Category?.Name</p>
+                        <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="btn btn-outline-primary btn-sm">View Details</a>
                     </div>
                 </div>
             </div>

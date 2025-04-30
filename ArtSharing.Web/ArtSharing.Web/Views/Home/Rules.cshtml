@@ -2,15 +2,26 @@
     ViewData["Title"] = "Site Rules";
 }
 
-<h1>Site Rules</h1>
-<hr />
-<ul>
-    <li>Respect other users.</li>
-    <li>Do not post offensive content.</li>
-    <li>Do not spam.</li>
-    <li>Follow copyright laws.</li>
-    <li>Report any inappropriate content.</li>
-</ul>
+<div class="container mt-5">
+    <div class="card shadow-sm border rounded-3 site-rules-card">
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">📜 Site Rules</h2>
+            <ul class="list-group list-group-flush mb-3">
+                <li class="list-group-item site-rule-item">✅ Respect other users.</li>
+                <li class="list-group-item site-rule-item">🚫 Do not post offensive content.</li>
+                <li class="list-group-item site-rule-item">📵 Do not spam.</li>
+                <li class="list-group-item site-rule-item">📚 Follow copyright laws.</li>
+                <li class="list-group-item site-rule-item">⚠️ Report any inappropriate content.</li>
+            </ul>
 
-<p>By using this site, you agree to follow these rules. Violations may result in a ban or removal of content.</p>
-<a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">Back to Home</a>
+            <p class="text-muted site-rule-note">
+                By using this site, you agree to follow these rules.
+                Violations may result in a ban or removal of content.
+            </p>
+
+            <div class="text-center">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary mt-3">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>

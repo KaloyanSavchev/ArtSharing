@@ -5,105 +5,113 @@
     ViewData["Title"] = "Post Details";
 }
 
-<h2>@ContentFilter.CensorText(Model.Title)</h2>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title mb-3 text-primary">@ContentFilter.CensorText(Model.Title)</h2>
 
-@if (Model.PostImages != null && Model.PostImages.Any())
-{
-    <div id="postImagesCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            @for (int i = 0; i < Model.PostImages.Count(); i++)
+            @if (Model.PostImages != null && Model.PostImages.Any())
             {
-                var image = Model.PostImages.ElementAt(i);
-                <div class="carousel-item @(i == 0 ? "active" : "")">
-                    <img src="@image.ImagePath"
-                         class="d-block w-100"
-                         style="max-height:500px; object-fit:contain;"
-                         alt="Image @i" />
+                <div id="postImagesCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                    <div class="carousel-inner rounded border">
+                        @for (int i = 0; i < Model.PostImages.Count(); i++)
+                        {
+                            var image = Model.PostImages.ElementAt(i);
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <img src="@image.ImagePath"
+                                     class="d-block w-100"
+                                     style="max-height:500px; object-fit:contain;"
+                                     alt="Image @i" />
+                            </div>
+                        }
+                    </div>
+
+                    @if (Model.PostImages.Count() > 1)
+                    {
+                        <button class="carousel-control-prev" type="button" data-bs-target="#postImagesCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#postImagesCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No images available for this post.</p>
+            }
+
+            <p>
+                <strong>Posted by:</strong>
+                <a asp-controller="Profile" asp-action="About" asp-route-username="@Model.User.UserName">
+                    @ContentFilter.CensorText(Model.User.UserName)
+                </a>
+            </p>
+
+            <p><strong>Category:</strong> @ContentFilter.CensorText(Model.Category?.Name)</p>
+            <p><strong>Description:</strong> @ContentFilter.CensorText(Model.Description)</p>
+            <p><small class="text-muted">Posted on: @Model.CreatedAt.ToShortDateString()</small></p>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                @await Html.PartialAsync("_LikeButtonPartial", Model)
+            }
+
+            <div class="mt-3">
+                @if (User.Identity.Name == Model.User.UserName || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger me-2">Delete</a>
+                }
+
+                <a asp-controller="Report" asp-action="Post" asp-route-id="@Model.Id" class="btn btn-outline-danger me-2">Report</a>
+                <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4 shadow-sm">
+        <div class="card-body">
+            <h4 class="mb-4">💬 Comments</h4>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <form asp-controller="Comment" asp-action="Create" method="post" class="mb-4 comment-form">
+                    <input type="hidden" name="PostId" value="@Model.Id" />
+                    <textarea name="Content" class="form-control mb-2" rows="3" placeholder="Write a comment..." required></textarea>
+                    <button type="submit" class="btn btn-primary">Post Comment</button>
+                </form>
+            }
+            else
+            {
+                <p><a asp-area="Identity" asp-page="/Account/Login">Log in</a> to comment.</p>
+            }
+
+            <div id="commentsSection">
+                @await Html.PartialAsync("_CommentsPartial", Model.Comments
+                         .Where(c => c.ParentCommentId == null)
+                         .OrderBy(c => c.CreatedAt)
+                         .Take(3)
+                         .ToList())
+            </div>
+
+            @if (Model.Comments.Count(c => c.ParentCommentId == null) > 3)
+            {
+                <div class="text-center mt-3">
+                    <button id="loadMoreCommentsBtn" class="btn btn-outline-secondary">Load more comments</button>
                 </div>
             }
         </div>
-
-        @if (Model.PostImages.Count() > 1)
-        {
-            <button class="carousel-control-prev" type="button" data-bs-target="#postImagesCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#postImagesCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            </button>
-        }
     </div>
-}
-else
-{
-    <p class="text-muted">No images available for this post.</p>
-}
-
-<p>
-    <strong>Posted by:</strong>
-    <a asp-controller="Profile" asp-action="About" asp-route-username="@Model.User.UserName">
-        @ContentFilter.CensorText(Model.User.UserName)
-    </a>
-</p>
-
-<p><strong>Category:</strong> @ContentFilter.CensorText(Model.Category?.Name)</p>
-
-<p><strong>Description:</strong> @ContentFilter.CensorText(Model.Description)</p>
-
-<p><small class="text-muted">Posted on: @Model.CreatedAt.ToShortDateString()</small></p>
-
-@if (User.Identity.IsAuthenticated)
-{
-    @await Html.PartialAsync("_LikeButtonPartial", Model)
-}
-
-@if (User.Identity.Name == Model.User.UserName || User.IsInRole("Admin") || User.IsInRole("Moderator"))
-{
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Edit</a>
-    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
-}
-
-<a asp-action="Index" asp-controller="Home" class="btn btn-secondary mt-3">Back to Home</a>
-<a asp-controller="Report" asp-action="Post" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-2">Report</a>
-
-<h4 class="mt-5">💬 Comments</h4>
-
-@if (User.Identity.IsAuthenticated)
-{
-    <form asp-controller="Comment" asp-action="Create" method="post" class="mb-4 comment-form">
-        <input type="hidden" name="PostId" value="@Model.Id" />
-        <div class="form-group mb-2">
-            <textarea name="Content" class="form-control" placeholder="Write a comment..." required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Post Comment</button>
-    </form>
-}
-else
-{
-    <p><a asp-area="Identity" asp-page="/Account/Login">Log in</a> to comment.</p>
-}
-
-<div id="commentsSection">
-    @await Html.PartialAsync("_CommentsPartial", Model.Comments
-            .Where(c => c.ParentCommentId == null)
-            .OrderBy(c => c.CreatedAt)
-            .Take(3)
-            .ToList())
 </div>
-
-@if (Model.Comments.Count(c => c.ParentCommentId == null) > 3)
-{
-    <div class="text-center mt-3">
-        <button id="loadMoreCommentsBtn" class="btn btn-outline-secondary">Load more comments</button>
-    </div>
-}
 
 @section Scripts {
     <script>
         document.querySelectorAll('.like-form').forEach(form => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                e.stopImmediatePropagation();
+                e.stopImmediatePropagation(); // предотвратява двойни изпълнения
 
                 const postId = form.dataset.postId;
                 const heartIcon = document.getElementById(`heart-icon-${postId}`);
@@ -117,7 +125,7 @@ else
                             'Content-Type': 'application/json',
                             'RequestVerificationToken': token
                         },
-                        body: JSON.stringify({ postId: postId })
+                        body: JSON.stringify({ postId })
                     });
 
                     if (response.ok) {
@@ -125,14 +133,12 @@ else
 
                         likeCountSpan.innerText = `(${result.likeCount} like${result.likeCount === 1 ? '' : 's'})`;
 
-                        if (result.hasLiked) {
-                            heartIcon.textContent = "❤️";
-                            heartIcon.classList.remove('text-secondary');
-                            heartIcon.classList.add('text-danger');
-                        } else {
-                            heartIcon.textContent = "🤍";
-                            heartIcon.classList.remove('text-danger');
-                            heartIcon.classList.add('text-secondary');
+                        heartIcon.textContent = result.hasLiked ? "❤️" : "🤍";
+                        heartIcon.className = result.hasLiked ? "heart-icon text-danger" : "heart-icon text-secondary";
+
+                        const container = form.closest(".liked-post-card");
+                        if (container && !result.hasLiked && window.location.href.includes("LikedPosts")) {
+                            container.remove();
                         }
                     }
                 } catch (err) {
@@ -150,21 +156,19 @@ else
             document.getElementById("commentsSection").insertAdjacentHTML("beforeend", html);
             loadedComments += 3;
 
-            if (html.trim() === "") {
-                this.remove();
-            }
+            if (html.trim() === "") this.remove();
         });
 
         document.addEventListener("click", function (e) {
             if (e.target.classList.contains("toggle-replies-btn")) {
                 const id = e.target.getAttribute("data-comment-id");
                 const repliesDiv = document.getElementById(`replies-${id}`);
-                if (repliesDiv.style.display === "none") {
+                if (repliesDiv.style.display === "none" || repliesDiv.style.display === "") {
                     repliesDiv.style.display = "block";
                     e.target.textContent = "Hide replies";
                 } else {
                     repliesDiv.style.display = "none";
-                    e.target.textContent = "View replies";
+                    e.target.textContent = `View replies (${repliesDiv.children.length})`;
                 }
             }
         });

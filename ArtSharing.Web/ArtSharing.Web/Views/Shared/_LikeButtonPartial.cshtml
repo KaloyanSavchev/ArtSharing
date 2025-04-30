@@ -10,7 +10,7 @@
 
 <form class="like-form" data-post-id="@Model.Id">
     @Html.AntiForgeryToken()
-    <button type="submit" class="btn btn-link p-0" style="font-size: 1.5rem;">
+    <button type="submit" class="btn btn-link p-0" style="font-size: 1.5rem; text-decoration: none;">
         <span id="heart-icon-@Model.Id" class="heart-icon @(hasLiked ? "text-danger" : "text-secondary")">
             @(hasLiked ? "❤️" : "🤍")
         </span>

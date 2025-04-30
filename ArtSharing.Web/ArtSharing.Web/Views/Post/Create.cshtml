@@ -5,38 +5,75 @@
     ViewData["Title"] = "Create Post";
 }
 
-<h2 class="mb-4">Create a New Post</h2>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">🎨 Create a New Post</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" enctype="multipart/form-data">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-<form asp-action="Create" enctype="multipart/form-data">
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="mb-3">
+                    <input asp-for="Title" class="form-control" placeholder="Enter the post title..." />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
 
-    <div class="form-group mb-3">
-        <input asp-for="Title" class="form-control" placeholder="Enter the post title..." />
-        <span asp-validation-for="Title" class="text-danger"></span>
+                <div class="mb-3">
+                    <textarea asp-for="Description" class="form-control" rows="5" placeholder="Write a description for your post..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Upload Images (max 5)</label>
+                    <input type="file" asp-for="ImageFiles" class="form-control" multiple accept="image/*" />
+                    <span asp-validation-for="ImageFiles" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Select a Category</label>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary w-100 dropdown-toggle text-start" type="button" id="categoryDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                            Select a category...
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="categoryDropdownBtn" id="categoryDropdownMenu" style="max-height: 200px; overflow-y: auto;">
+                            @if (ViewData["CategoryId"] is IEnumerable<SelectListItem> categories)
+                            {
+                                foreach (var category in categories)
+                                {
+                                    <li><a class="dropdown-item" href="#" data-id="@category.Value">@category.Text</a></li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <input type="hidden" asp-for="CategoryId" id="selectedCategoryId" />
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">🚀 Post</button>
+            </form>
+        </div>
     </div>
-
-    <div class="form-group mb-3">
-        <textarea asp-for="Description" class="form-control" rows="5" placeholder="Write a description for your post..."></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label>Upload Images (max 5)</label>
-        <input type="file" asp-for="ImageFiles" class="form-control" multiple accept="image/*" />
-        <span asp-validation-for="ImageFiles" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <select asp-for="CategoryId" class="form-control"
-                asp-items="@(new SelectList(ViewData["CategoryId"] as IEnumerable<SelectListItem>, "Value", "Text"))">
-            <option value="">Select a category...</option>
-        </select>
-        <span asp-validation-for="CategoryId" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Post</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuItems = document.querySelectorAll("#categoryDropdownMenu .dropdown-item");
+            const selectedInput = document.getElementById("selectedCategoryId");
+            const dropdownBtn = document.getElementById("categoryDropdownBtn");
+
+            menuItems.forEach(item => {
+                item.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const text = this.textContent.trim();
+                    const id = this.getAttribute("data-id");
+
+                    dropdownBtn.textContent = text;
+                    selectedInput.value = id;
+                });
+            });
+        });
+    </script>
 }

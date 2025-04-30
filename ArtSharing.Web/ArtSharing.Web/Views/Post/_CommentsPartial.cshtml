@@ -3,31 +3,47 @@
 
 @foreach (var comment in Model)
 {
-    <div class="mb-3" style="margin-left:@(comment.ParentCommentId != null ? "40px" : "0")">
-        <div class="border p-3 rounded comment-box">
-            <strong>@comment.User.UserName</strong>
-            <p>@ContentFilter.CensorText(comment.Content)</p>
-            <small class="text-muted">@comment.CreatedAt.ToShortDateString()</small>
+    <div class="mb-3 @(comment.ParentCommentId != null ? "ms-5" : "")">
+        <div class="card comment-box">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>@comment.User.UserName</strong>
+                        <small class="text-muted ms-2">@comment.CreatedAt.ToString("dd MMM yyyy")</small>
+                    </div>
+                </div>
 
-            <div class="mt-2">
-                @if (User.Identity.Name == comment.User.UserName || User.IsInRole("Admin") || User.IsInRole("Moderator"))
-                {
-                    <a asp-controller="Comment" asp-action="Edit" asp-route-id="@comment.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-controller="Comment" asp-action="Delete" asp-route-id="@comment.Id" class="btn btn-sm btn-danger">Delete</a>
-                }
+                <p class="mt-2 mb-2">@ContentFilter.CensorText(comment.Content)</p>
 
-                <a asp-controller="Report" asp-action="Comment" asp-route-id="@comment.Id" class="btn btn-sm btn-outline-danger">Report</a>
+                <div class="d-flex flex-wrap gap-2">
+                    @if (User.Identity.Name == comment.User.UserName || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                    {
+                        <a asp-controller="Comment" asp-action="Edit" asp-route-id="@comment.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-controller="Comment" asp-action="Delete" asp-route-id="@comment.Id" class="btn btn-sm btn-danger">Delete</a>
+                    }
+
+                    <a asp-controller="Report" asp-action="Comment" asp-route-id="@comment.Id" class="btn btn-sm btn-outline-danger">Report</a>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#reply-form-@comment.Id" aria-expanded="false">
+                            Reply
+                        </button>
+                    }
+                </div>
 
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <form asp-controller="Comment" asp-action="Create" method="post" class="mt-3 comment-form">
-                        <input type="hidden" name="PostId" value="@comment.PostId" />
-                        <input type="hidden" name="ParentCommentId" value="@comment.Id" />
-                        <div class="form-group mb-2">
-                            <textarea name="Content" class="form-control" placeholder="Reply to this comment..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-sm">Reply</button>
-                    </form>
+                    <div class="collapse mt-3" id="reply-form-@comment.Id">
+                        <form asp-controller="Comment" asp-action="Create" method="post" class="comment-form">
+                            <input type="hidden" name="PostId" value="@comment.PostId" />
+                            <input type="hidden" name="ParentCommentId" value="@comment.Id" />
+                            <div class="mb-2">
+                                <textarea name="Content" class="form-control" rows="2" placeholder="Reply to this comment..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-success">Post Reply</button>
+                        </form>
+                    </div>
                 }
             </div>
         </div>
@@ -39,7 +55,7 @@
                     View replies (@comment.Replies.Count)
                 </button>
 
-                <div id="replies-@comment.Id" style="display:none;">
+                <div id="replies-@comment.Id" class="mt-2" style="display:none;">
                     @await Html.PartialAsync("_CommentsPartial", comment.Replies)
                 </div>
             </div>
