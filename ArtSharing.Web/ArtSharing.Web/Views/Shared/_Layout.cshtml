@@ -39,49 +39,44 @@
                 </button>
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link-button" asp-area="" asp-controller="Post" asp-action="Create">📤 Upload</a>
                         </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                                <li class="nav-item">
+                                    <a class="nav-link-button" asp-controller="Feedback" asp-action="Create">💬 Feedback</a>
+                                </li>
+                        }
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="Create">Upload</a>
+                            <a class="nav-link-button" asp-controller="Category" asp-action="All">📚 Categories</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Category" asp-action="All">Categories</a>
-                        </li>
+
 
                         @if (SignInManager.IsSignedIn(User) && (User.IsInRole("Admin") || User.IsInRole("Moderator")))
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Admin Panel
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                    @if (User.IsInRole("Admin"))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="ManageUsers">Manage Users</a></li>
-                                    }
-                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="ManageCategories">Manage Categories</a></li>
-                                    <li><a asp-controller="Admin" asp-action="Reports" class="dropdown-item">Manage Reports</a></li>
-                                    @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
-                                    {
-                                        <li><a class="dropdown-item" asp-controller="AdminFeedback" asp-action="Index">View Feedback</a></li>
-                                    }
-
-                                </ul>
+                                    <a class="nav-link dropdown-toggle nav-link-standard" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                                        🛠️ Admin Panel
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                                                    @if (User.IsInRole("Admin"))
+                                                                    {
+                                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="ManageUsers">👥 Manage Users</a></li>
+                                                                    }
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="ManageCategories">📂 Manage Categories</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Reports">🚨 Manage Reports</a></li>
+                                        <li><a class="dropdown-item" asp-controller="AdminFeedback" asp-action="Index">💬 View Feedback</a></li>
+                                    </ul>
                             </li>
                         }
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Feedback" asp-action="Create">Feedback</a>
-                            </li>
-                        }
+                        
                     </ul>
-                    
-                        <a class="nav-link" asp-controller="Home" asp-action="Rules">Site Rules</a>
-                    
-                    <button id="themeToggleBtn" class="btn btn-sm btn-outline-secondary me-3">🌙</button>
+
+                    <a class="nav-link-button me-2" asp-controller="Home" asp-action="Rules">📜 Site Rules</a>
+
+                    <button id="themeToggleBtn" class="me-3">🌙</button>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
